@@ -1,0 +1,62 @@
+{
+  "workflow_id": "validation_loop",
+  "name": "Iterative Validation Loop",
+  "mode": "iterative",
+  "description": "Continuous validation and refinement until quality criteria met",
+  "max_iterations": 3,
+  "exit_criteria": {
+    "type": "all_complete",
+    "required_outputs": [
+      "validation_passed",
+      "no_critical_issues"
+    ],
+    "description": "Exit when all validation checks pass"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "quality_validator",
+      "technique": "contradiction",
+      "task": "Check document for logical contradictions: {document}",
+      "output_key": "contradiction_results",
+      "on_fail": "continue"
+    },
+    {
+      "step": 2,
+      "agent": "quality_validator",
+      "technique": "sanity_check",
+      "task": "Perform sanity check on claims and assumptions",
+      "input_from": "document",
+      "output_key": "sanity_results",
+      "on_fail": "continue"
+    },
+    {
+      "step": 3,
+      "agent": "quality_validator",
+      "technique": "red_flags",
+      "task": "Identify any red flags or warning signs",
+      "input_from": "document",
+      "output_key": "red_flags_results",
+      "on_fail": "continue"
+    },
+    {
+      "step": 4,
+      "agent": "synthesizer",
+      "task": "Generate validation report summarizing all findings",
+      "context_from_previous": true,
+      "output_key": "validation_report",
+      "on_fail": "stop"
+    }
+  ],
+  "refinement_strategy": {
+    "gap_detection": "Aggregate issues from all validation techniques",
+    "confidence_scoring": "Inverse of total critical issues found",
+    "input_refinement": "Revise document based on validation findings"
+  },
+  "expected_outputs": [
+    "contradiction_results",
+    "sanity_results",
+    "red_flags_results",
+    "validation_report"
+  ]
+}

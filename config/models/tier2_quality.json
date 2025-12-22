@@ -1,0 +1,39 @@
+{
+  "model_id": "tier2_quality",
+  "name": "Qwen 2.5 32B Abliterated",
+  "description": "High-quality abliterated model for deep reasoning and validation",
+  "path": "Qwen2.5-32B-Abliterated-Q4_K_M.gguf",
+  "quantization": "Q4_K_M",
+  "size_gb": 20,
+  "agent_role": "validator",
+  "n_gpu_layers": 35,
+  "ctx_size": 32768,
+  "threads": 6,
+  "temperature_default": 0.7,
+  "max_tokens_default": 4096,
+  "vram_usage": "~8GB VRAM (35 layers) + ~12GB RAM (remaining layers)",
+  "use_cases": [
+    "Deep validation",
+    "Logical analysis",
+    "Contradiction detection",
+    "Blind spot identification",
+    "Final synthesis",
+    "Quality assurance"
+  ],
+  "strengths": [
+    "Deep reasoning capability",
+    "Large context window (32K)",
+    "Unbiased outputs (abliterated)",
+    "Better understanding of complex logic"
+  ],
+  "limitations": [
+    "Slower inference than tier1",
+    "Requires VRAM+RAM split",
+    "Higher latency"
+  ],
+  "optimization": {
+    "note": "n_gpu_layers=35 optimized for RTX 3060 Ti 8GB",
+    "strategy": "Keep critical layers in VRAM for faster processing, offload remaining to RAM",
+    "tuning": "Adjust n_gpu_layers based on actual VRAM usage (monitor with nvidia-smi)"
+  }
+}

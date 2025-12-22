@@ -1,0 +1,69 @@
+{
+  "workflow_id": "deep_research",
+  "name": "Deep Research with Iterative Refinement",
+  "mode": "iterative",
+  "description": "Iterative research workflow with gap detection and refinement loops",
+  "max_iterations": 5,
+  "exit_criteria": {
+    "type": "confidence_threshold",
+    "threshold": 0.8,
+    "description": "Exit when confidence score reaches 80% or max iterations reached"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "agent": "fast_researcher",
+      "task": "Conduct initial research on topic: {topic}. Gather facts, statistics, and key information from multiple sources. Focus on breadth.",
+      "output_key": "initial_research",
+      "on_fail": "continue"
+    },
+    {
+      "step": 2,
+      "agent": "quality_validator",
+      "technique": "blind_spots",
+      "task": "Analyze initial research for blind spots, missing perspectives, and gaps in coverage.",
+      "input_from": "initial_research",
+      "output_key": "blind_spots_analysis",
+      "on_fail": "continue"
+    },
+    {
+      "step": 3,
+      "agent": "quality_validator",
+      "technique": "contradiction",
+      "task": "Check for logical contradictions and inconsistencies in the research.",
+      "input_from": "initial_research",
+      "output_key": "contradiction_check",
+      "on_fail": "continue"
+    },
+    {
+      "step": 4,
+      "agent": "fast_researcher",
+      "task": "Address identified gaps and blind spots: {gaps}. Gather additional information to fill these gaps.",
+      "condition": "blind_spots_analysis.has_gaps",
+      "context_from_previous": true,
+      "output_key": "gap_filling_research",
+      "on_fail": "continue"
+    },
+    {
+      "step": 5,
+      "agent": "quality_validator",
+      "technique": "red_flags",
+      "task": "Perform final quality check for red flags, warning signs, and remaining issues.",
+      "context_from_previous": true,
+      "output_key": "final_validation",
+      "on_fail": "continue"
+    }
+  ],
+  "refinement_strategy": {
+    "gap_detection": "Use blind_spots technique to identify missing information",
+    "confidence_scoring": "Based on validation results and gap count",
+    "input_refinement": "Add identified gaps to next iteration's context"
+  },
+  "expected_outputs": [
+    "initial_research",
+    "blind_spots_analysis",
+    "contradiction_check",
+    "gap_filling_research",
+    "final_validation"
+  ]
+}

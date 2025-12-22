@@ -1,8 +1,8 @@
 # Project Status - Deep Research Orchestrator
 
-**Date:** 2025-12-21
-**Sprint:** 1 (Foundation)
-**Status:** ✅ Bootstrap Complete
+**Date:** 2025-12-22
+**Sprint:** 2 (Iterative Workflows)
+**Status:** ✅ Sprint 2 Complete
 
 ---
 
@@ -85,6 +85,50 @@
 
 ---
 
+### Sprint 2 Implementation
+- [x] **Orchestrator** (`src/core/orchestrator.py`)
+  - Master-Worker pattern implementation
+  - Sequential workflow execution
+  - Iterative workflow execution with refinement loops
+  - Gap detection and input refinement
+  - Confidence scoring and exit criteria
+  - Agent/model/workflow config loading
+  - Health check and listing methods
+
+- [x] **WorkflowEngine** (`src/core/workflow_engine.py`)
+  - Sequential and iterative execution modes
+  - Exit criteria evaluation (confidence_threshold, all_complete, custom)
+  - Condition evaluation for conditional steps
+  - Loop support for iterative refinement
+  - Workflow validation
+
+- [x] **Tool Decorator System** (`src/core/tool_decorator.py`)
+  - @tool decorator pattern (inspired by smolagents)
+  - Automatic schema generation from function signatures
+  - ToolRegistry singleton for tool management
+  - Tool prompt generation for LLM context
+  - Tool execution framework
+
+- [x] **Agent Configurations** (config/agents/)
+  - fast_researcher.json (8B model, speed focus)
+  - quality_validator.json (32B model, deep reasoning)
+  - synthesizer.json (32B model, report generation)
+
+- [x] **Model Configurations** (config/models/)
+  - tier1_fast.json (Llama 3.1 8B, fully VRAM)
+  - tier2_quality.json (Qwen 2.5 32B, VRAM+RAM split)
+
+- [x] **Iterative Workflows** (config/workflows/iterative/)
+  - deep_research.json (gap detection, refinement loops)
+  - validation_loop.json (continuous validation)
+
+- [x] **Registered Tools** (`src/tools/registered_tools.py`)
+  - web_scraper, pdf_extractor, text_cleaner
+  - search_local_docs, calculate_statistics
+  - Auto-registration with decorator pattern
+
+---
+
 ## 🔄 In Progress
 
 ### llama.cpp Installation
@@ -110,46 +154,52 @@
    ./scripts/download_models.sh
    ```
 
-3. **Test LlamaCppClient**
+3. **Test end-to-end workflow**
    ```python
-   from src.models.llama_cpp_client import LlamaCppClient
+   from src.core.orchestrator import Orchestrator
 
-   client = LlamaCppClient(
-       model_path="models/Llama-3.1-8B-Abliterated.gguf",
-       n_gpu_layers=999
+   orchestrator = Orchestrator()
+   result = orchestrator.execute_workflow(
+       "deep_research",
+       {"topic": "AI research methodologies"}
    )
-
-   response = client.generate("Test prompt")
-   print(response)
+   print(result.final_report)
    ```
-
-### Sprint 2 (Iterative Workflows)
-- [ ] Implement WorkflowEngine with iterative mode
-- [ ] Add exit criteria evaluation
-- [ ] Implement gap detection
-- [ ] Add confidence scoring
-- [ ] Test with real workflows
 
 ### Sprint 3 (Multi-AI Integration)
 - [ ] Implement prompt_generator.py
 - [ ] Implement response_analyzer.py
+- [ ] Create multi_ai_workflow.json
 - [ ] Test Multi-AI workflow end-to-end
+
+### Sprint 4 (Quality Assurance)
+- [ ] Implement RAGAS metrics (faithfulness, relevance)
+- [ ] Implement DeepEval (hallucination detection)
+- [ ] Add quality scoring to workflows
+- [ ] Create QA reporting dashboard
 
 ---
 
 ## 📊 Statistics
 
-- **Total Files:** 53
-- **Total Lines:** 12,788
-- **Python Files:** 10
-- **JSON Configs:** 18
+- **Total Files:** 62 (+9 from Sprint 1)
+- **Total Lines:** ~15,500 (+2,712)
+- **Python Files:** 13 (+3)
+- **JSON Configs:** 23 (+5)
 - **Documentation:** 12
 - **Scripts:** 2
+
+### Sprint 2 Additions
+- 3 agent configs
+- 2 model configs
+- 2 iterative workflow configs
+- 3 core Python modules (orchestrator, workflow_engine, tool_decorator)
+- 1 registered_tools module
 
 ---
 
 ## 🎯 Current Focus
 
-**Status:** Foundation complete, ready for model setup
+**Status:** Sprint 2 complete - Iterative workflows implemented
 **Blocker:** None (deferred testing until stronger system)
-**Next Session:** llama.cpp build completion + model download
+**Next Session:** Model setup + end-to-end testing OR Sprint 3 (Multi-AI Integration)

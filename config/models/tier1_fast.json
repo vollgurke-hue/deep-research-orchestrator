@@ -1,0 +1,32 @@
+{
+  "model_id": "tier1_fast",
+  "name": "Llama 3.1 8B Abliterated",
+  "description": "Fast abliterated model for rapid research and data gathering",
+  "path": "Llama-3.1-8B-Abliterated-Q6_K.gguf",
+  "quantization": "Q6_K",
+  "size_gb": 7,
+  "agent_role": "researcher",
+  "n_gpu_layers": 999,
+  "ctx_size": 8192,
+  "threads": 4,
+  "temperature_default": 0.3,
+  "max_tokens_default": 2048,
+  "vram_usage": "7GB (fully in VRAM on RTX 3060 Ti)",
+  "use_cases": [
+    "Initial research",
+    "Web scraping analysis",
+    "Document extraction",
+    "Fact gathering",
+    "Quick iterations"
+  ],
+  "strengths": [
+    "Fast inference",
+    "Low latency",
+    "Unbiased outputs (abliterated)",
+    "Fits fully in VRAM"
+  ],
+  "limitations": [
+    "Smaller context window than tier2",
+    "Less deep reasoning capability"
+  ]
+}
