@@ -29,7 +29,7 @@ echo ""
 # Build with CUDA using CMake (new build system)
 mkdir -p build
 cd build
-cmake .. -DGGML_CUDA=ON
+cmake .. -DGGML_CUDA=ON -DLLAMA_CURL=OFF
 cmake --build . --config Release -j $(nproc)
 
 echo ""
