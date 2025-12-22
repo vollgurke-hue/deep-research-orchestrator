@@ -1,0 +1,40 @@
+{
+  "workflow_id": "planning_validation",
+  "name": "GIST Planning Validation Workflow",
+  "description": "Validate GIST plans from Phase 3. Perform scenario analysis, premortem, and sanity checks.",
+  "mode": "validation",
+  "steps": [
+    {
+      "step": 1,
+      "technique": "scenario_analysis",
+      "on_fail": "continue",
+      "output": "save_to_context",
+      "context_from_previous": false
+    },
+    {
+      "step": 2,
+      "technique": "premortem",
+      "on_fail": "continue",
+      "output": "save_to_context",
+      "context_from_previous": true
+    },
+    {
+      "step": 3,
+      "technique": "sanity_check",
+      "on_fail": "continue",
+      "output": "final",
+      "context_from_previous": true
+    }
+  ],
+  "reasoning_strategy": "CoT",
+  "recommended_model": "tier2_deep",
+  "output_aggregation": "merge_all",
+  "temperature": 0.5,
+  "use_cases": [
+    "Phase 3 (GIST Planning) validation",
+    "Strategy decisions",
+    "Plan quality check",
+    "Before committing to implementation"
+  ],
+  "tags": ["planning", "validation", "phase-3", "gist", "strategy"]
+}

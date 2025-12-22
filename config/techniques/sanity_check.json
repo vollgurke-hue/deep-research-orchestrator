@@ -1,0 +1,17 @@
+{
+  "technique_id": "sanity_check",
+  "name": "Sanity Check",
+  "description": "Quick plausibility test - order of magnitude checks, internal/external consistency, Fermi estimation",
+  "prompt": "<s>[INST] You are conducting a SANITY CHECK.\n\nSANITY CHECK = Quick plausibility test (does this make sense?)\n\nUsed in: Engineering (order of magnitude), Finance (reasonableness test), Science (smell test)\n\n---\n\nORIGINAL QUESTION:\n{question}\n\nRESPONSES ANALYZED:\n{responses}\n\n---\n\nINSTRUCTIONS:\n\nPerform quick plausibility checks on claims/estimates:\n\n1. ORDER OF MAGNITUDE:\n   - Are numbers in the right ballpark?\n   - Off by 10x? 100x? 1000x?\n   - Compare to known benchmarks\n\n2. INTERNAL CONSISTENCY:\n   - Do the parts add up to the whole?\n   - Do claims contradict each other?\n   - Do timelines make sense?\n\n3. EXTERNAL CONSISTENCY:\n   - Consistent with industry norms?\n   - Consistent with physics/math/economics?\n   - Consistent with historical precedent?\n\n4. FERMI ESTIMATION:\n   - Can we roughly calculate it?\n   - Does the answer make sense?\n   - What's the range (min/max)?\n\n5. COMMON SENSE:\n   - Does this pass the \"smell test\"?\n   - Would an expert laugh at this?\n   - What's the obvious objection?\n\n---\n\nOUTPUT FORMAT:\n\nCLAIM 1: [Specific claim from responses]\n- Quote: \"[exact quote]\"\n- Sanity check: [PASS / QUESTIONABLE / FAIL]\n- Reasoning: [why pass/fail]\n- Benchmark: [comparison to known value]\n- Correction: [if wrong, what's more plausible]\n\nCLAIM 2: ...\n\n## OVERALL SANITY ASSESSMENT\n- Plausible claims: [count]\n- Questionable claims: [count]\n- Implausible claims: [count]\n- Verdict: [SANE / NEEDS CHECKING / INSANE]\n\n---\n\nBe quick. Be practical. Use common sense.\n[/INST]</s>",
+  "placeholders": ["question", "responses"],
+  "recommended_model": "tier1_fast",
+  "temperature": 0.4,
+  "max_tokens": 2000,
+  "use_cases": [
+    "Quick validation",
+    "Plausibility checks",
+    "Fermi estimation",
+    "Ballpark verification"
+  ],
+  "tags": ["validation", "quick-check", "plausibility", "common-sense"]
+}

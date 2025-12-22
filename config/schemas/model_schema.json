@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Model Configuration Schema",
+  "description": "Schema for model tier configurations",
+  "type": "object",
+  "required": ["tier_id", "name", "description"],
+  "properties": {
+    "tier_id": {
+      "type": "string",
+      "description": "Tier identifier",
+      "enum": ["tier1_fast", "tier2_deep", "tier3_overnight"]
+    },
+    "name": {
+      "type": "string",
+      "description": "Ollama model name",
+      "examples": ["dolphin-llama3:8b", "dolphin-mixtral:8x7b", "llama3.3:70b"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Model purpose and characteristics"
+    },
+    "speed": {
+      "type": "string",
+      "description": "Expected inference speed",
+      "examples": ["30-50 tok/s", "5-10 tok/s", "1-3 tok/s"]
+    },
+    "time_per_report": {
+      "type": "string",
+      "description": "Estimated time per validation report",
+      "examples": ["2-5 min", "5-10 min", "15-30 min"]
+    },
+    "vram": {
+      "type": "string",
+      "description": "VRAM requirements",
+      "examples": ["~6-7 GB (Q5)", "~15-20 GB (Q4)", "~40-50 GB (Q4)"]
+    },
+    "usage": {
+      "type": "string",
+      "description": "Expected usage percentage",
+      "examples": ["90% of validations", "10% of validations", "Rare, overnight only"]
+    },
+    "recommended_for": {
+      "type": "array",
+      "description": "Recommended use cases",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["daily validations", "quick checks"], ["high-priority decisions", "deep analysis"]]
+    },
+    "temperature_default": {
+      "type": "number",
+      "description": "Default temperature for this model",
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "default": 0.5
+    },
+    "max_tokens_default": {
+      "type": "integer",
+      "description": "Default max tokens for this model",
+      "minimum": 100,
+      "maximum": 8000,
+      "default": 2000
+    }
+  }
+}

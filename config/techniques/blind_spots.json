@@ -1,0 +1,17 @@
+{
+  "technique_id": "blind_spots",
+  "name": "Blind Spot Detection",
+  "description": "Find blind spots - what NO response mentioned but should have (missing perspectives, stakeholders, constraints, risks)",
+  "prompt": "<s>[INST] You are a comprehensive research analyst.\n\nYour task: Find BLIND SPOTS - what important aspects the document DOES NOT address (but should have).\n\nDOCUMENT TO ANALYZE:\n{responses}\n\n---\n\nINSTRUCTIONS:\n\n1. Given the document's topic and claims, what critical aspects are MISSING or UNDER-ADDRESSED?\n   - Perspectives not considered (users, competitors, regulators)\n   - Stakeholders not mentioned (who is affected?)\n   - Trade-offs not discussed (what are we sacrificing?)\n   - Constraints not evaluated (what limits our options?)\n   - Risks not assessed (what could go wrong?)\n   - Alternative approaches not explored (are there other ways?)\n   - Data sources not cited (where's the evidence?)\n   - Assumptions not stated (what are we taking for granted?)\n\n2. Categorize blind spots:\n   - CRITICAL: Core aspect completely ignored - could invalidate conclusions\n   - IMPORTANT: Significant factor overlooked - limits reliability\n   - USEFUL: Helpful consideration missing - would strengthen analysis\n\n3. For each blind spot:\n   - What's missing?\n   - Why does it matter for this specific topic?\n   - Who/what does it affect?\n   - How to research it?\n\n---\n\nTHINK SYSTEMATICALLY:\n\nStakeholders: Who is affected but not discussed?\n- Users, builders, regulators, competitors, partners, investors, society\n\nConstraints: What limits choices but wasn't evaluated?\n- Time, budget, skills, technology, regulations, market conditions, culture\n\nTrade-offs: What sacrifices weren't weighed?\n- Quality vs speed, cost vs features, short-term vs long-term, scope vs depth\n\nRisks: What could go wrong but wasn't assessed?\n- Technical, market, financial, legal, operational, reputational, competitive\n\nAlternatives: What other options weren't explored?\n- Different approaches, technologies, markets, business models, partnerships\n\nSecond-order effects: What happens AFTER the decision?\n- Downstream consequences, ripple effects, unintended outcomes, feedback loops\n\nEvidence gaps: What claims lack supporting data?\n- Unsourced statistics, unvalidated assumptions, missing benchmarks\n\n---\n\nOUTPUT FORMAT:\n\nBLIND SPOT 1: [What's missing - be specific]\n- Category: [Stakeholder / Constraint / Trade-off / Risk / Alternative / 2nd-order / Evidence]\n- Severity: [CRITICAL / IMPORTANT / USEFUL]\n- Why it matters: [specific implication for this document's topic]\n- How to research: [concrete action - e.g., \"Survey users\", \"Benchmark competitors\", \"Test assumption X\"]\n\nBLIND SPOT 2: ...\n\nIf document is comprehensive, state: \"NO SIGNIFICANT BLIND SPOTS DETECTED - Document covers key aspects\"\n\n---\n\nBe thorough. Think laterally. Focus on what's MISSING, not what's wrong.\n[/INST]</s>",
+  "placeholders": ["responses"],
+  "recommended_model": "tier1_fast",
+  "temperature": 0.6,
+  "max_tokens": 2500,
+  "use_cases": [
+    "Find missing perspectives",
+    "Completeness check",
+    "Risk identification",
+    "Stakeholder analysis"
+  ],
+  "tags": ["validation", "completeness", "risk-analysis", "stakeholder-analysis"]
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Validation Technique Schema",
+  "description": "Schema for individual validation techniques",
+  "type": "object",
+  "required": ["technique_id", "name", "prompt", "recommended_model"],
+  "properties": {
+    "technique_id": {
+      "type": "string",
+      "description": "Unique identifier for the technique",
+      "examples": ["contradiction", "blind_spots"]
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name",
+      "examples": ["Contradiction Detection", "Blind Spot Analysis"]
+    },
+    "description": {
+      "type": "string",
+      "description": "What this technique does"
+    },
+    "prompt": {
+      "type": "string",
+      "description": "The full prompt template with placeholders"
+    },
+    "placeholders": {
+      "type": "array",
+      "description": "List of placeholder variables used in prompt",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["responses", "question"], ["context"]]
+    },
+    "recommended_model": {
+      "type": "string",
+      "description": "Recommended model tier for this technique",
+      "enum": ["tier1_fast", "tier2_deep", "tier3_overnight"]
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Recommended temperature for sampling",
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "default": 0.5
+    },
+    "max_tokens": {
+      "type": "integer",
+      "description": "Maximum tokens to generate",
+      "minimum": 100,
+      "maximum": 8000,
+      "default": 2000
+    },
+    "use_cases": {
+      "type": "array",
+      "description": "When to use this technique",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Categorization tags",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["validation", "research"], ["planning", "risk"]]
+    }
+  }
+}

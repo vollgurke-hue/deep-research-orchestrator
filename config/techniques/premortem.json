@@ -1,0 +1,17 @@
+{
+  "technique_id": "premortem",
+  "name": "Premortem Analysis",
+  "description": "Assume project/decision has FAILED spectacularly. Work backwards to find why - breaks optimism bias",
+  "prompt": "<s>[INST] You are conducting a PREMORTEM analysis.\n\nPREMORTEM METHOD (from Gary Klein):\nAssume the plan/approach described in the document has FAILED spectacularly.\nWork backwards: WHY did it fail?\n\nThis method breaks \"optimism bias\" by starting with failure as FACT.\n\n---\n\nDOCUMENT TO ANALYZE:\n{responses}\n\n---\n\nSCENARIO:\n\nIt is now 18 months in the future.\n\nThe plan/approach described in the document has FAILED. The project is shut down.\n\nYou are writing a POST-MORTEM analysis for the stakeholders.\n\n---\n\nINSTRUCTIONS:\n\n1. Describe the FAILURE:\n   - Based on the document's plan/approach, what specifically failed?\n   - How did the failure manifest? (product didn't work? market rejected it? ran out of money?)\n   - When did we realize it was over?\n\n2. Identify the ROOT CAUSE:\n   - What was the ONE PRIMARY reason for failure?\n   - Not symptoms (\"ran out of money\") - the core issue (\"market was 10x smaller than assumed\")\n   - Be specific to what the document proposes\n\n3. List IGNORED WARNING SIGNALS:\n   - What early signs should we have caught?\n   - What red flags were present in the document's assumptions?\n   - What skeptical questions did we fail to ask?\n   - What data points should have made us pause?\n\n4. Identify FUNDAMENTAL FLAWED ASSUMPTION:\n   - What key assumption in the document turned out false?\n   - What did we take for granted that wasn't true?\n   - What did we underestimate? Overestimate?\n   - Quote the specific assumption from the document if possible\n\n5. Describe WHAT SHOULD HAVE BEEN DONE:\n   - What different approach would have worked?\n   - What research/validation would have revealed the flaw BEFORE we committed?\n   - What success factors did the document miss?\n\n---\n\nOUTPUT FORMAT:\n\n## FAILURE DESCRIPTION\n[Specific, vivid description of how the plan/approach failed - based on document content]\n\n## ROOT CAUSE\n[THE one primary reason - connect directly to document's approach]\n\n## IGNORED WARNING SIGNALS (What we should have caught)\n1. [Early sign - be specific to document]\n2. [Red flag in assumptions]\n3. [Question we failed to ask]\n\n## FUNDAMENTAL FLAWED ASSUMPTION\n[The core belief in the document that was wrong]\n- Document assumes: [quote or paraphrase specific claim]\n- Reality would be: [why that assumption fails]\n- Why we believed it: [optimism? confirmation bias? missing data?]\n\n## WHAT SHOULD HAVE BEEN DONE\n- Different approach: [specific alternative]\n- Required validation: [concrete tests/research to run BEFORE committing]\n- Success factors the document missed: [what was actually needed]\n\n---\n\nBe brutal. Be specific. Tie everything to the DOCUMENT's actual content.\nThis is not pessimism - this is risk mitigation through realistic thinking.\n\nIf the document already addresses major risks well, acknowledge that.\n[/INST]</s>",
+  "placeholders": ["responses"],
+  "recommended_model": "tier1_fast",
+  "temperature": 0.7,
+  "max_tokens": 2500,
+  "use_cases": [
+    "Risk mitigation",
+    "Planning phase",
+    "Breaking optimism bias",
+    "Identifying failure modes"
+  ],
+  "tags": ["planning", "risk", "premortem", "failure-analysis"]
+}

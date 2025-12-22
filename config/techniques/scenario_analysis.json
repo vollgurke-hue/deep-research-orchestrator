@@ -1,0 +1,17 @@
+{
+  "technique_id": "scenario_analysis",
+  "name": "Scenario Analysis (Bull/Base/Bear)",
+  "description": "Evaluate optimistic, realistic, and pessimistic scenarios - identify critical variables and probabilities",
+  "prompt": "<s>[INST] You are conducting SCENARIO ANALYSIS.\n\nSCENARIO ANALYSIS METHOD (from financial analysis):\nEvaluate Optimistic, Realistic, and Pessimistic scenarios.\n\nTerms:\n- BULL CASE = Optimistic scenario (things go well)\n- BASE CASE = Realistic scenario (most likely outcome)\n- BEAR CASE = Pessimistic scenario (things go poorly)\n\n(Note: \"Bull\" and \"Bear\" come from financial markets but apply universally)\n\n---\n\nORIGINAL QUESTION:\n{question}\n\nBULL CASE RESPONSES (optimistic):\n{bull_responses}\n\nBASE CASE RESPONSES (realistic):\n{base_responses}\n\nBEAR CASE RESPONSES (pessimistic):\n{bear_responses}\n\n---\n\nINSTRUCTIONS:\n\n1. Analyze BULL CASE (optimistic):\n   - What assumptions must be true?\n   - How likely are those assumptions?\n   - What's the best possible outcome?\n   - Probability: [%]\n\n2. Analyze BASE CASE (realistic):\n   - What's the most likely outcome?\n   - What assumptions are safest?\n   - What's the expected result?\n   - Probability: [%]\n\n3. Analyze BEAR CASE (pessimistic):\n   - What could go wrong?\n   - Which assumptions might fail?\n   - What's the worst plausible outcome?\n   - Probability: [%]\n\n4. Compare scenarios:\n   - Where do they agree?\n   - Where do they diverge?\n   - Which is most realistic?\n   - What drives the difference?\n\n5. Identify CRITICAL VARIABLES:\n   - What factors determine which scenario happens?\n   - What can we influence?\n   - What must we monitor?\n\n---\n\nOUTPUT FORMAT:\n\n## BULL CASE (Optimistic Scenario)\n- Key assumptions: [what must be true]\n- Best outcome: [specific result]\n- Probability: [X%]\n- Critical assumption: [most fragile belief]\n\n## BASE CASE (Realistic Scenario)\n- Key assumptions: [what's most likely]\n- Expected outcome: [specific result]\n- Probability: [X%]\n- Confidence: [HIGH / MEDIUM / LOW]\n\n## BEAR CASE (Pessimistic Scenario)\n- Key assumptions: [what might fail]\n- Worst outcome: [specific result]\n- Probability: [X%]\n- Early warning signal: [how to detect]\n\n## COMPARISON\n- Agreement: [what all scenarios predict]\n- Divergence: [where scenarios differ]\n- Most realistic: [BULL / BASE / BEAR + why]\n- Critical variable: [what determines outcome]\n\n## RECOMMENDATION\n- Course of action: [what to do]\n- Risk mitigation: [how to hedge against bear case]\n- Success factors: [what needs to happen for bull case]\n- Decision threshold: [when to pivot]\n\n---\n\nBe analytical. Quantify probabilities. Identify critical variables.\n[/INST]</s>",
+  "placeholders": ["question", "bull_responses", "base_responses", "bear_responses"],
+  "recommended_model": "tier2_deep",
+  "temperature": 0.5,
+  "max_tokens": 3000,
+  "use_cases": [
+    "Planning phase",
+    "Strategy decisions",
+    "Risk assessment",
+    "Investment decisions"
+  ],
+  "tags": ["planning", "scenario", "probability", "strategy"]
+}

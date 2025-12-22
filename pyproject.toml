@@ -1,0 +1,35 @@
+[project]
+name = "deep-research-orchestrator"
+version = "0.1.0"
+description = "Local-first deep research orchestrator with abliterated models"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "pypdf2>=3.0.0",
+    "pydantic>=2.5.0",
+    "python-dotenv>=1.0.0",
+    "markupsafe>=2.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

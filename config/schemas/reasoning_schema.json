@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Reasoning Strategy Schema",
+  "description": "Schema for advanced reasoning strategies",
+  "type": "object",
+  "required": ["strategy_id", "name", "prompt_wrapper"],
+  "properties": {
+    "strategy_id": {
+      "type": "string",
+      "description": "Unique identifier for the strategy",
+      "enum": ["DIRECT", "CoT", "ToT", "Self-Correction"]
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name",
+      "examples": ["Chain of Thought", "Tree of Thought", "Self-Correction"]
+    },
+    "description": {
+      "type": "string",
+      "description": "What this strategy does"
+    },
+    "prompt_wrapper": {
+      "type": "string",
+      "description": "How to wrap the original prompt. Use {prompt} as placeholder."
+    },
+    "requires_multiple_calls": {
+      "type": "boolean",
+      "description": "Whether strategy requires multiple LLM calls",
+      "default": false
+    },
+    "num_branches": {
+      "type": "integer",
+      "description": "Number of reasoning branches (for ToT)",
+      "minimum": 1,
+      "maximum": 5,
+      "default": 1
+    },
+    "aggregation_method": {
+      "type": "string",
+      "description": "How to combine multiple outputs",
+      "enum": ["single", "majority_vote", "synthesize", "best_of_n"],
+      "default": "single"
+    },
+    "recommended_for": {
+      "type": "array",
+      "description": "When to use this strategy",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

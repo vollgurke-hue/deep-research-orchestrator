@@ -1,0 +1,40 @@
+{
+  "workflow_id": "research_validation",
+  "name": "Base Research Validation Workflow",
+  "description": "Validate research responses from Phase 2 (Base Research). Find contradictions, blind spots, and perform premortem analysis.",
+  "mode": "validation",
+  "steps": [
+    {
+      "step": 1,
+      "technique": "contradiction",
+      "on_fail": "continue",
+      "output": "save_to_context",
+      "context_from_previous": false
+    },
+    {
+      "step": 2,
+      "technique": "blind_spots",
+      "on_fail": "continue",
+      "output": "save_to_context",
+      "context_from_previous": true
+    },
+    {
+      "step": 3,
+      "technique": "premortem",
+      "on_fail": "continue",
+      "output": "final",
+      "context_from_previous": true
+    }
+  ],
+  "reasoning_strategy": "CoT",
+  "recommended_model": "tier1_fast",
+  "output_aggregation": "merge_all",
+  "temperature": 0.5,
+  "use_cases": [
+    "Phase 2 (Base Research) validation",
+    "Multiple AI responses comparison",
+    "Research quality check",
+    "Before Phase 2.5 or Phase 3"
+  ],
+  "tags": ["research", "validation", "phase-2", "multi-technique"]
+}

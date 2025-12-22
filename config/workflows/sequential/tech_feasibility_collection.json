@@ -1,0 +1,49 @@
+{
+  "workflow_id": "tech_feasibility_collection",
+  "name": "Technical Feasibility Research Collection",
+  "description": "Collect and analyze technical documentation, articles, and reports for feasibility assessment",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": "1",
+      "name": "Collect Technical Articles",
+      "type": "collect",
+      "source_id": "tech_blog",
+      "targets": [],
+      "note": "Add URLs to technical articles, documentation, Stack Overflow discussions"
+    },
+    {
+      "step_id": "2",
+      "name": "Extract PDF Documentation",
+      "type": "collect",
+      "source_id": "pdf_document",
+      "targets": [],
+      "note": "Add paths to technical PDFs, whitepapers, specification documents"
+    },
+    {
+      "step_id": "3",
+      "name": "Process Local Code Documentation",
+      "type": "collect",
+      "source_id": "local_markdown",
+      "targets": [],
+      "note": "Add paths to README files, API docs, architecture docs"
+    },
+    {
+      "step_id": "4",
+      "name": "AI Technical Analysis",
+      "type": "process",
+      "processor": "ai_summarizer",
+      "template": "technical_feasibility",
+      "note": "Analyze collected data for technical feasibility"
+    },
+    {
+      "step_id": "5",
+      "name": "Validate Technical Analysis",
+      "type": "validate",
+      "workflow_id": "research_validation",
+      "note": "Validate the technical feasibility analysis"
+    }
+  ],
+  "recommended_model": "tier2_deep",
+  "estimated_time_minutes": 20
+}

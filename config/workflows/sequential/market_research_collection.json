@@ -1,0 +1,49 @@
+{
+  "workflow_id": "market_research_collection",
+  "name": "Market Research Collection & Validation",
+  "description": "Comprehensive market research: collect data from multiple sources, structure it, and validate",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": "1",
+      "name": "Collect Market Reports",
+      "type": "collect",
+      "source_id": "market_report",
+      "targets": [],
+      "note": "Add target URLs when running this workflow"
+    },
+    {
+      "step_id": "2",
+      "name": "Collect Tech Articles",
+      "type": "collect",
+      "source_id": "tech_blog",
+      "targets": [],
+      "note": "Add tech blog URLs for industry trends"
+    },
+    {
+      "step_id": "3",
+      "name": "Process Local Research Files",
+      "type": "collect",
+      "source_id": "local_markdown",
+      "targets": [],
+      "note": "Add paths to local research documents"
+    },
+    {
+      "step_id": "4",
+      "name": "AI Summarization",
+      "type": "process",
+      "processor": "ai_summarizer",
+      "template": "market_opportunity",
+      "note": "Summarize all collected data with market opportunity focus"
+    },
+    {
+      "step_id": "5",
+      "name": "Validate Research Quality",
+      "type": "validate",
+      "workflow_id": "research_validation",
+      "note": "Run validation workflow on processed data"
+    }
+  ],
+  "recommended_model": "tier2_deep",
+  "estimated_time_minutes": 15
+}

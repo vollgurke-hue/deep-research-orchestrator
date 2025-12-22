@@ -1,0 +1,40 @@
+{
+  "workflow_id": "quick_web_research",
+  "name": "Quick Web Research",
+  "description": "Fast web research workflow for a single topic - collect, clean, summarize",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": "1",
+      "name": "Scrape Web Articles",
+      "type": "collect",
+      "source_id": "web_article",
+      "targets": [],
+      "note": "Add 3-5 URLs about the research topic"
+    },
+    {
+      "step_id": "2",
+      "name": "Clean Text",
+      "type": "process",
+      "processor": "text_cleaner",
+      "note": "Remove HTML, normalize whitespace"
+    },
+    {
+      "step_id": "3",
+      "name": "Structure Content",
+      "type": "process",
+      "processor": "structurer",
+      "note": "Extract sections and key points"
+    },
+    {
+      "step_id": "4",
+      "name": "Generate Summary",
+      "type": "process",
+      "processor": "ai_summarizer",
+      "template": "general",
+      "note": "Create concise summary of findings"
+    }
+  ],
+  "recommended_model": "tier1_fast",
+  "estimated_time_minutes": 5
+}

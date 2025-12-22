@@ -1,0 +1,27 @@
+{
+  "workflow_id": "general_chat",
+  "name": "General Chat Workflow",
+  "description": "Conversational mode for general questions and ad-hoc analysis. Uses Chain-of-Thought reasoning.",
+  "mode": "conversational",
+  "steps": [
+    {
+      "step": 1,
+      "technique": "none",
+      "on_fail": "stop",
+      "output": "final",
+      "context_from_previous": false
+    }
+  ],
+  "reasoning_strategy": "CoT",
+  "recommended_model": "tier1_fast",
+  "output_aggregation": "single",
+  "temperature": 0.7,
+  "use_cases": [
+    "General questions",
+    "Ad-hoc analysis",
+    "Brainstorming",
+    "Conversational exploration",
+    "Clarifying concepts"
+  ],
+  "tags": ["chat", "conversational", "general", "adhoc"]
+}

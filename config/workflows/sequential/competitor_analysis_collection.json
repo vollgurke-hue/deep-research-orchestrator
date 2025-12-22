@@ -1,0 +1,56 @@
+{
+  "workflow_id": "competitor_analysis_collection",
+  "name": "Competitor Analysis Collection",
+  "description": "Collect competitor information from multiple web sources and analyze",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": "1",
+      "name": "Scrape Competitor Websites",
+      "type": "collect",
+      "source_id": "web_article",
+      "targets": [],
+      "note": "Add competitor homepage, about page, product pages URLs"
+    },
+    {
+      "step_id": "2",
+      "name": "Collect Industry Reports",
+      "type": "collect",
+      "source_id": "market_report",
+      "targets": [],
+      "note": "Add URLs to industry comparison reports"
+    },
+    {
+      "step_id": "3",
+      "name": "Process Local Competitor Research",
+      "type": "collect",
+      "source_id": "local_markdown",
+      "targets": [],
+      "note": "Add paths to existing competitor analysis documents"
+    },
+    {
+      "step_id": "4",
+      "name": "Structure Competitor Data",
+      "type": "process",
+      "processor": "structurer",
+      "note": "Structure all competitor data into comparable format"
+    },
+    {
+      "step_id": "5",
+      "name": "AI Competitor Analysis",
+      "type": "process",
+      "processor": "ai_summarizer",
+      "template": "research_summary",
+      "note": "Generate comprehensive competitor analysis"
+    },
+    {
+      "step_id": "6",
+      "name": "Validate Analysis",
+      "type": "validate",
+      "workflow_id": "research_validation",
+      "note": "Validate competitor analysis for contradictions and blind spots"
+    }
+  ],
+  "recommended_model": "tier2_deep",
+  "estimated_time_minutes": 25
+}
