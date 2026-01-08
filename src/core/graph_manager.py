@@ -8,6 +8,7 @@ Handles node/edge operations, conflict detection, and serialization.
 import networkx as nx
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from .axiom_manager import AxiomManager
 
 
 class GraphManager:
@@ -39,15 +40,20 @@ class GraphManager:
     }
     """
 
-    def __init__(self, max_nodes: int = 10000):
+    def __init__(self, max_nodes: int = 10000, axioms_dir: Optional[str] = None):
         """
         Initialize graph manager.
 
         Args:
             max_nodes: Maximum nodes allowed (from profile)
+            axioms_dir: Directory for axioms (None = no axiom filtering)
         """
         self.graph = nx.DiGraph()
         self.max_nodes = max_nodes
+        self.axiom_manager = None
+
+        if axioms_dir:
+            self.axiom_manager = AxiomManager(axioms_dir)
 
     def add_node(
         self,
@@ -416,5 +422,121 @@ class GraphManager:
         self.graph = nx.read_graphml(path)
 
 
-# TODO Sprint 1 Day 7-9: Integrate with Axiom System
+    def apply_axiom_scoring(self) -> Dict[str, float]:
+        """
+        Apply axiom-based scoring to all nodes in graph.
+
+        Updates each node with an 'axiom_score' attribute.
+
+        Returns:
+            Dict mapping node_id -> axiom_score
+        """
+        if not self.axiom_manager:
+            print("Warning: No axiom manager configured")
+            return {}
+
+        scores = {}
+
+        for node_id in self.graph.nodes:
+            node_data = dict(self.graph.nodes[node_id])
+            score = self.axiom_manager.score_node(node_data)
+
+            # Update node with score
+            self.graph.nodes[node_id]["axiom_score"] = score
+            scores[node_id] = score
+
+        return scores
+
+    def filter_by_axioms(self, min_score: float = 0.5) -> List[str]:
+        """
+        Get node IDs that pass axiom filtering.
+
+        Args:
+            min_score: Minimum axiom score threshold
+
+        Returns:
+            List of node IDs that pass filtering
+        """
+        if not self.axiom_manager:
+            # No filtering, return all nodes
+            return list(self.graph.nodes)
+
+        # Score all nodes first
+        self.apply_axiom_scoring()
+
+        # Convert graph nodes to list format
+        nodes_list = []
+        for node_id in self.graph.nodes:
+            node_data = dict(self.graph.nodes[node_id])
+            node_data["id"] = node_id
+            nodes_list.append(node_data)
+
+        # Filter using axiom manager
+        filtered = self.axiom_manager.filter_nodes(
+            nodes_list,
+            min_score=min_score,
+            apply_filters=True
+        )
+
+        return [node["id"] for node in filtered]
+
+    def get_relevant_subgraph(
+        self,
+        center_node: Optional[str] = None,
+        depth: int = 2,
+        min_axiom_score: float = 0.5,
+        max_nodes: int = 50
+    ) -> nx.DiGraph:
+        """
+        Get relevant subgraph using axioms and graph algorithms.
+
+        Algorithm:
+        1. If center_node specified, use ego-graph
+        2. Otherwise, use top nodes by PageRank
+        3. Filter by axiom scores
+        4. Limit to max_nodes
+
+        Args:
+            center_node: Optional center for ego-graph
+            depth: Depth for ego-graph
+            min_axiom_score: Minimum axiom score threshold
+            max_nodes: Maximum nodes to include
+
+        Returns:
+            Filtered subgraph
+        """
+        # Get candidate nodes
+        if center_node and center_node in self.graph.nodes:
+            # Use ego-graph around center
+            subgraph = self.get_ego_graph(center_node, depth=depth)
+            candidate_nodes = list(subgraph.nodes)
+        else:
+            # Use top nodes by PageRank
+            candidate_nodes = self.get_top_nodes(n=max_nodes * 2, algorithm="pagerank")
+
+        # Filter by axioms
+        if self.axiom_manager:
+            # Convert to node data format
+            nodes_list = []
+            for node_id in candidate_nodes:
+                if node_id in self.graph.nodes:
+                    node_data = dict(self.graph.nodes[node_id])
+                    node_data["id"] = node_id
+                    nodes_list.append(node_data)
+
+            # Apply axiom filtering
+            filtered = self.axiom_manager.filter_nodes(
+                nodes_list,
+                min_score=min_axiom_score,
+                apply_filters=True
+            )
+
+            relevant_nodes = [node["id"] for node in filtered][:max_nodes]
+        else:
+            relevant_nodes = candidate_nodes[:max_nodes]
+
+        # Create subgraph
+        return self.graph.subgraph(relevant_nodes).copy()
+
+
 # TODO Sprint 2: Add MCTS for path exploration
