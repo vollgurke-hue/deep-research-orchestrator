@@ -7,8 +7,9 @@ Profiles define memory limits, model preferences, and optimization strategies.
 
 import json
 import psutil
+import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 
 class ProfileManager:
@@ -46,14 +47,33 @@ class ProfileManager:
         self._load_all_profiles()
 
     def _load_all_profiles(self):
-        """Load all profile configs from directory"""
-        # TODO Sprint 1 Day 3: Implement JSON loading
-        # Read all *.json files from profiles_dir
-        # Validate against config/schemas/profile_schema.json
-        # Store in self.profiles dict
-        pass
+        """
+        Load all profile configs from directory.
 
-    def get_profile(self, name: str) -> dict:
+        Reads all *.json files and stores them by profile_name.
+        """
+        if not self.profiles_dir.exists():
+            print(f"Warning: Profiles directory {self.profiles_dir} does not exist")
+            return
+
+        for json_file in self.profiles_dir.glob("*.json"):
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+
+                profile_name = config.get("profile_name")
+                if profile_name:
+                    self.profiles[profile_name] = config
+                    print(f"Loaded profile: {profile_name}")
+                else:
+                    print(f"Warning: Profile {json_file.name} has no profile_name field")
+
+            except json.JSONDecodeError as e:
+                print(f"Error parsing {json_file}: {e}")
+            except Exception as e:
+                print(f"Error loading {json_file}: {e}")
+
+    def get_profile(self, name: str) -> Optional[Dict]:
         """
         Get profile configuration by name.
 
@@ -61,13 +81,9 @@ class ProfileManager:
             name: Profile name (e.g., "standard", "minimal", "ultra")
 
         Returns:
-            Profile configuration dict
-
-        Raises:
-            KeyError: If profile not found
+            Profile configuration dict or None if not found
         """
-        # TODO Sprint 1 Day 3: Implement profile lookup
-        return self.profiles.get(name, {})
+        return self.profiles.get(name)
 
     def validate_hardware(self, profile_name: str) -> tuple[bool, Optional[str]]:
         """
@@ -84,23 +100,52 @@ class ProfileManager:
             if not valid:
                 print(f"Hardware insufficient: {msg}")
         """
-        # TODO Sprint 1 Day 3: Implement hardware check
-        # Use psutil to get RAM
-        # Use nvidia-smi or similar for VRAM
-        # Compare against profile.hardware_requirements
-
         profile = self.get_profile(profile_name)
         if not profile:
             return False, f"Profile '{profile_name}' not found"
 
-        # Placeholder: check RAM only
-        ram_gb = psutil.virtual_memory().total / (1024**3)
-        min_ram = profile.get("hardware_requirements", {}).get("min_ram_gb", 0)
+        requirements = profile.get("hardware_requirements", {})
+        min_ram = requirements.get("min_ram_gb", 0)
+        min_vram = requirements.get("min_vram_gb", 0)
 
+        # Check RAM
+        ram_gb = psutil.virtual_memory().total / (1024**3)
         if ram_gb < min_ram:
             return False, f"Insufficient RAM: {ram_gb:.1f}GB < {min_ram}GB required"
 
+        # Check VRAM (if nvidia-smi available)
+        if min_vram > 0:
+            vram_gb = self._get_vram_gb()
+            if vram_gb is not None and vram_gb < min_vram:
+                return False, f"Insufficient VRAM: {vram_gb:.1f}GB < {min_vram}GB required"
+
         return True, None
+
+    def _get_vram_gb(self) -> Optional[float]:
+        """
+        Get total VRAM in GB via nvidia-smi.
+
+        Returns:
+            VRAM in GB or None if unavailable
+        """
+        try:
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=memory.total", "--format=csv,noheader,nounits"],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+
+            if result.returncode == 0:
+                lines = result.stdout.strip().split('\n')
+                first_line = lines[0] if lines else "0"
+                vram_mb = float(first_line.strip())
+                return vram_mb / 1024.0  # Convert MB to GB
+
+        except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+            pass
+
+        return None
 
     def recommend_profile(self) -> str:
         """
@@ -108,17 +153,42 @@ class ProfileManager:
 
         Algorithm:
         1. Detect RAM and VRAM
-        2. Find profiles that fit (sorted by capability desc)
-        3. Return best match
+        2. Find profiles that fit hardware requirements
+        3. Sort by capability (max_graph_nodes desc)
+        4. Return best match
 
         Returns:
-            Recommended profile name
+            Recommended profile name (defaults to "standard" if none fit)
         """
-        # TODO Sprint 1 Day 3: Implement auto-detection
-        # Detect hardware specs
-        # Sort profiles by max_graph_nodes (descending)
-        # Return first that fits
-        return "standard"
+        # Get hardware specs
+        ram_gb = psutil.virtual_memory().total / (1024**3)
+        vram_gb = self._get_vram_gb()
+
+        # Find profiles that fit
+        fitting_profiles = []
+        for profile_name, profile in self.profiles.items():
+            requirements = profile.get("hardware_requirements", {})
+            min_ram = requirements.get("min_ram_gb", 0)
+            min_vram = requirements.get("min_vram_gb", 0)
+
+            # Check if hardware meets requirements
+            ram_ok = ram_gb >= min_ram
+            vram_ok = vram_gb is None or vram_gb >= min_vram  # Skip VRAM check if unavailable
+
+            if ram_ok and vram_ok:
+                capability_score = profile.get("max_graph_nodes", 0)
+                fitting_profiles.append((profile_name, capability_score))
+
+        if not fitting_profiles:
+            print(f"Warning: No profiles fit hardware (RAM: {ram_gb:.1f}GB, VRAM: {vram_gb}GB)")
+            return "standard"  # Fallback
+
+        # Sort by capability (higher is better)
+        fitting_profiles.sort(key=lambda x: x[1], reverse=True)
+
+        recommended = fitting_profiles[0][0]
+        print(f"Recommended profile: {recommended} (max_nodes={fitting_profiles[0][1]})")
+        return recommended
 
 
 # TODO Sprint 1 Day 4: Add profile switching (graceful degradation)
