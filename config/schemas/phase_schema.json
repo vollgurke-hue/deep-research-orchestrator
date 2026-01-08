@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Phase Schema",
+  "description": "Schema for research phase definitions (composable workflow blocks)",
+  "type": "object",
+  "required": ["phase_id", "name", "type", "building_blocks"],
+  "properties": {
+    "phase_id": {
+      "type": "string",
+      "description": "Unique identifier for this phase",
+      "pattern": "^phase_[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this phase accomplishes"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["phase"],
+      "description": "Must be 'phase'"
+    },
+    "building_blocks": {
+      "type": "array",
+      "description": "Workflows or techniques that compose this phase",
+      "items": {
+        "type": "object",
+        "required": ["block_type", "block_id"],
+        "properties": {
+          "block_type": {
+            "type": "string",
+            "enum": ["workflow", "technique"],
+            "description": "Type of building block"
+          },
+          "block_id": {
+            "type": "string",
+            "description": "ID of the workflow or technique"
+          },
+          "category": {
+            "type": "string",
+            "description": "Research category this block addresses"
+          },
+          "optional": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this block is optional"
+          }
+        }
+      }
+    },
+    "exit_criteria": {
+      "type": "object",
+      "description": "Conditions to exit this phase",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["all_complete", "confidence_threshold", "custom"]
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "criteria_id": {
+          "type": "string",
+          "description": "ID of custom criteria definition"
+        },
+        "required_outputs": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata"
+    }
+  }
+}

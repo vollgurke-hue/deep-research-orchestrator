@@ -2,7 +2,7 @@
   "model_id": "tier2_quality",
   "name": "Qwen 2.5 32B Abliterated",
   "description": "High-quality abliterated model for deep reasoning and validation",
-  "path": "Qwen2.5-32B-Abliterated-Q4_K_M.gguf",
+  "path": "/home/phili/llama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
   "quantization": "Q4_K_M",
   "size_gb": 20,
   "agent_role": "validator",

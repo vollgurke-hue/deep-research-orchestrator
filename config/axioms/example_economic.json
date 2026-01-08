@@ -1,0 +1,22 @@
+{
+  "axiom_id": "opportunity_cost",
+  "category": "economics",
+  "statement": "Evaluate all opportunities by opportunity cost. A gain is only meaningful if it justifies time investment compared to passive alternatives (e.g., 7% index fund + saved time).",
+  "application": "scorer",
+  "priority": "critical",
+  "weight_modifier": {
+    "if_roi_per_hour < 50": -0.5,
+    "if_roi_per_hour >= 50 and < 100": 0.3,
+    "if_roi_per_hour >= 100": 0.8
+  },
+  "metadata": {
+    "school": "austrian_economics",
+    "reference": "Mises, Human Action (1949)",
+    "examples": [
+      "If a business requires 40h/week for €2000/month profit, compare to index fund returns + saved time",
+      "A consulting project must beat €100/hour opportunity cost to be worth pursuing"
+    ],
+    "created_at": "2026-01-08T17:30:00Z"
+  },
+  "enabled": true
+}

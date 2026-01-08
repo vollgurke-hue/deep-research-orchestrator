@@ -1,0 +1,36 @@
+{
+  "phase_id": "phase_0_base_research",
+  "name": "Base Research Phase",
+  "description": "Initial research collection across multiple categories",
+  "type": "phase",
+  "building_blocks": [
+    {
+      "block_type": "workflow",
+      "block_id": "market_research_collection",
+      "category": "market_opportunity"
+    },
+    {
+      "block_type": "workflow",
+      "block_id": "tech_feasibility_collection",
+      "category": "technical_feasibility"
+    },
+    {
+      "block_type": "workflow",
+      "block_id": "competitor_analysis_collection",
+      "category": "competition"
+    }
+  ],
+  "exit_criteria": {
+    "type": "all_complete",
+    "required_outputs": [
+      "market_research",
+      "tech_feasibility",
+      "competitor_analysis"
+    ]
+  },
+  "metadata": {
+    "estimated_duration": "1-2 hours",
+    "parallelizable": true,
+    "requires_models": ["fast_researcher"]
+  }
+}

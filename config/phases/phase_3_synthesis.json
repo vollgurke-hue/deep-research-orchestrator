@@ -1,0 +1,25 @@
+{
+  "phase_id": "phase_3_synthesis",
+  "name": "Synthesis & Planning Phase",
+  "description": "Synthesize validated research into actionable plans",
+  "type": "phase",
+  "building_blocks": [
+    {
+      "block_type": "workflow",
+      "block_id": "planning_validation",
+      "category": "strategic_planning"
+    }
+  ],
+  "exit_criteria": {
+    "type": "all_complete",
+    "required_outputs": [
+      "synthesis_report",
+      "action_plan"
+    ]
+  },
+  "metadata": {
+    "estimated_duration": "30-60 minutes",
+    "parallelizable": false,
+    "requires_models": ["synthesizer"]
+  }
+}

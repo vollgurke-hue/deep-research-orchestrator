@@ -1,0 +1,85 @@
+{
+  "technique_id": "prompt_customizer",
+  "type": "technique",
+  "name": "Prompt Customizer",
+  "description": "Takes generic technique prompts and customizes them for specific research contexts",
+  "is_generic": true,
+  "category": "research_creation",
+  "agent_role": "prompt_engineer",
+
+  "prompt_template": {
+    "sections": {
+      "context": "You are a prompt engineering expert. Your task is to customize generic technique prompts for specific research contexts while maintaining the original structure and quality.",
+
+      "input": "Generic Technique: {technique_name}\n\nGeneric Prompt:\n{generic_prompt}\n\nResearch Context:\n- Research Goal: {research_goal}\n- Thematic Area: {area_name}\n- Area Description: {area_description}",
+
+      "task": "Generate a CUSTOMIZED prompt that:\n1. Focuses specifically on the research context\n2. Maintains the same structure as the generic template\n3. Adds domain-specific instructions and examples\n4. Adjusts placeholders to be context-specific\n5. Preserves quality criteria from the original",
+
+      "output_format": "Return ONLY valid JSON (no markdown):\n{\n  \"customizations\": {\n    \"focus\": \"Specific focus area from research goal\",\n    \"target_audience\": \"Specific target audience if mentioned\",\n    \"exclude\": \"What to exclude if mentioned\"\n  },\n  \"prompt\": \"The full customized prompt text with all sections...\",\n  \"temperature\": 0.7,\n  \"max_tokens\": 2000\n}",
+
+      "quality_criteria": [
+        "Customized prompt must be more specific than generic version",
+        "All placeholders from generic prompt should be preserved or enhanced",
+        "Output format requirements must remain identical",
+        "Quality criteria should be adapted to the specific context"
+      ]
+    }
+  },
+
+  "placeholders": [
+    {
+      "name": "technique_name",
+      "description": "Name of the generic technique being customized",
+      "required": true
+    },
+    {
+      "name": "generic_prompt",
+      "description": "The original generic prompt template",
+      "required": true
+    },
+    {
+      "name": "research_goal",
+      "description": "The user's research goal",
+      "required": true
+    },
+    {
+      "name": "area_name",
+      "description": "Name of the thematic area",
+      "required": true
+    },
+    {
+      "name": "area_description",
+      "description": "Description of the thematic area",
+      "required": true
+    }
+  ],
+
+  "model": "tier1_fast",
+  "temperature": 0.3,
+  "max_tokens": 1500,
+
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+
+  "output": {
+    "format": "json",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+
+  "exit_criteria": {
+    "type": "completion",
+    "threshold": null,
+    "required_outputs": ["customized_prompt"]
+  }
+}

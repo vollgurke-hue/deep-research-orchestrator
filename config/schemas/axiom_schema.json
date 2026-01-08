@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "axiom_schema.json",
+  "title": "Axiom Schema",
+  "description": "Schema for user-defined axioms (values and principles)",
+  "type": "object",
+  "required": ["axiom_id", "category", "statement", "application", "priority"],
+  "properties": {
+    "axiom_id": {
+      "type": "string",
+      "description": "Unique identifier for the axiom",
+      "pattern": "^[a-z_][a-z0-9_]*$",
+      "examples": ["opportunity_cost", "risk_tolerance", "time_preference"]
+    },
+    "category": {
+      "type": "string",
+      "description": "Category of the axiom",
+      "enum": ["economics", "risk", "time", "ethics", "strategy", "technical"],
+      "examples": ["economics", "ethics"]
+    },
+    "statement": {
+      "type": "string",
+      "description": "Core principle in 1-3 sentences (max 500 chars)",
+      "maxLength": 500,
+      "examples": [
+        "Evaluate all opportunities by opportunity cost. A gain is only meaningful if it justifies time investment vs passive alternatives."
+      ]
+    },
+    "application": {
+      "type": "string",
+      "description": "How to apply this axiom",
+      "enum": ["filter", "validator", "scorer"],
+      "examples": ["scorer"]
+    },
+    "priority": {
+      "type": "string",
+      "description": "Importance level for weighting",
+      "enum": ["critical", "high", "medium", "low"],
+      "examples": ["critical", "high"]
+    },
+    "weight_modifier": {
+      "type": "object",
+      "description": "Conditional weight adjustments (optional)",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": -1.0,
+        "maximum": 1.0
+      },
+      "examples": [
+        {
+          "if_roi_per_hour < 50": -0.5,
+          "if_roi_per_hour >= 100": 0.8
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional information",
+      "properties": {
+        "school": {
+          "type": "string",
+          "description": "Economic/philosophical school",
+          "examples": ["austrian_economics", "stoicism"]
+        },
+        "reference": {
+          "type": "string",
+          "description": "Source reference (book, paper, etc.)",
+          "examples": ["Mises, Human Action (1949)"]
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Usage examples",
+          "examples": [
+            ["If a business requires 40h/week for €2000/month profit, compare to index fund returns + saved time"]
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When axiom was created"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      }
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether axiom is currently active",
+      "default": true
+    }
+  },
+  "examples": [
+    {
+      "axiom_id": "opportunity_cost",
+      "category": "economics",
+      "statement": "Evaluate all opportunities by opportunity cost. A gain is only meaningful if it justifies time investment compared to passive alternatives (e.g., 7% index fund + saved time).",
+      "application": "scorer",
+      "priority": "critical",
+      "weight_modifier": {
+        "if_roi_per_hour < 50": -0.5,
+        "if_roi_per_hour >= 50 and < 100": 0.3,
+        "if_roi_per_hour >= 100": 0.8
+      },
+      "metadata": {
+        "school": "austrian_economics",
+        "reference": "Mises, Human Action (1949)",
+        "examples": [
+          "If a business requires 40h/week for €2000/month profit, compare to index fund returns + saved time"
+        ]
+      },
+      "enabled": true
+    }
+  ]
+}

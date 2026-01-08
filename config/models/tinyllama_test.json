@@ -1,0 +1,11 @@
+{
+  "model_id": "tinyllama_test",
+  "name": "TinyLlama Test",
+  "path": "/home/phili/llama-models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+  "llama_cli_path": "llama.cpp/build/bin/llama-cli",
+  "n_gpu_layers": 999,
+  "ctx_size": 2048,
+  "threads": 4,
+  "temperature_default": 0.3,
+  "max_tokens_default": 50
+}

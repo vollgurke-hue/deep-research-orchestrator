@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "model_config_schema.json",
+  "title": "Model Configuration Schema",
+  "description": "Schema for LLM model configurations",
+  "type": "object",
+  "required": ["model_id", "provider", "capabilities", "quality_level", "vram_mb"],
+  "properties": {
+    "model_id": {
+      "type": "string",
+      "description": "Unique model identifier",
+      "pattern": "^[a-z0-9_-]+$",
+      "examples": ["llama-3.1-8b-instruct", "deepseek-r1-14b"]
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Human-readable name",
+      "examples": ["Llama 3.1 8B Instruct", "DeepSeek-R1 14B"]
+    },
+    "provider": {
+      "type": "string",
+      "enum": ["ollama", "vllm", "external_api"],
+      "description": "Model serving backend",
+      "examples": ["ollama"]
+    },
+    "model_path": {
+      "type": "string",
+      "description": "Path or identifier for model (ollama name, file path, etc.)",
+      "examples": ["llama3.1:8b-instruct-q4_K_M", "deepseek-r1:14b"]
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["extraction", "reasoning", "synthesis", "validation"]
+      },
+      "minItems": 1,
+      "description": "What this model can do",
+      "examples": [["extraction", "reasoning"]]
+    },
+    "quality_level": {
+      "type": "string",
+      "enum": ["fast", "balanced", "quality", "ultra"],
+      "description": "Quality tier of this model",
+      "examples": ["balanced"]
+    },
+    "vram_mb": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Approximate VRAM usage in MB",
+      "examples": [5000, 9000]
+    },
+    "ram_mb": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Approximate RAM usage in MB",
+      "examples": [2000, 3000]
+    },
+    "context_window": {
+      "type": "number",
+      "minimum": 1024,
+      "description": "Maximum context window size in tokens",
+      "examples": [4096, 8192, 16384]
+    },
+    "quantization": {
+      "type": "string",
+      "description": "Quantization method",
+      "examples": ["Q4_K_M", "Q5_K_M", "Q8_0"],
+      "pattern": "^Q[0-9]_.*$"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Model-specific inference parameters",
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0.7
+        },
+        "top_p": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.9
+        },
+        "top_k": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 40
+        },
+        "repeat_penalty": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1.1
+        },
+        "num_gpu_layers": {
+          "type": "integer",
+          "minimum": -1,
+          "description": "Number of layers on GPU (-1 = all)",
+          "default": -1
+        },
+        "n_ctx": {
+          "type": "integer",
+          "minimum": 512,
+          "description": "Context window size",
+          "examples": [4096, 8192]
+        },
+        "n_batch": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Batch size for prompt processing",
+          "default": 512
+        }
+      }
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether model is available for use",
+      "default": true
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "architecture": {
+          "type": "string",
+          "examples": ["llama", "qwen", "mistral"]
+        },
+        "base_model": {
+          "type": "string",
+          "examples": ["Meta Llama 3.1", "DeepSeek-R1"]
+        },
+        "license": {
+          "type": "string",
+          "examples": ["Llama 3.1 Community License", "MIT"]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "model_id": "deepseek-r1-14b",
+      "display_name": "DeepSeek-R1 14B (Reasoning)",
+      "provider": "ollama",
+      "model_path": "deepseek-r1:14b",
+      "capabilities": ["reasoning", "synthesis", "validation"],
+      "quality_level": "balanced",
+      "vram_mb": 9000,
+      "ram_mb": 3000,
+      "context_window": 8192,
+      "quantization": "Q4_K_M",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "repeat_penalty": 1.1,
+        "num_gpu_layers": -1,
+        "n_ctx": 8192,
+        "n_batch": 512
+      },
+      "enabled": true,
+      "metadata": {
+        "architecture": "qwen",
+        "base_model": "DeepSeek-R1-Distill-Qwen-14B",
+        "license": "MIT"
+      }
+    }
+  ]
+}

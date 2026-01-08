@@ -1,0 +1,23 @@
+{
+  "axiom_id": "risk_tolerance",
+  "category": "risk",
+  "statement": "Acceptable risk is asymmetric: small downside (5-10% capital), massive upside (10x+). Avoid symmetric bets and catastrophic risk regardless of upside.",
+  "application": "filter",
+  "priority": "critical",
+  "weight_modifier": {
+    "if_max_loss > 20%": -1.0,
+    "if_upside < 3x": -0.3,
+    "if_asymmetry >= 10x": 0.9
+  },
+  "metadata": {
+    "school": "nassim_taleb",
+    "reference": "Taleb, Antifragile (2012)",
+    "examples": [
+      "Angel investing: €5k loss max, €500k+ potential = acceptable asymmetry",
+      "Leveraged trading: 50% capital at risk = reject regardless of upside",
+      "Options: Limited downside (premium), unlimited upside = explore further"
+    ],
+    "created_at": "2026-01-08T17:30:00Z"
+  },
+  "enabled": true
+}

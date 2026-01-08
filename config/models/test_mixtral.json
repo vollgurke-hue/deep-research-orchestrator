@@ -1,0 +1,32 @@
+{
+  "model_id": "test_mixtral",
+  "name": "Mixtral 8x7B Q2_K (Test)",
+  "description": "Test model for development on weaker system (GTX 980 4GB VRAM)",
+  "path": "/home/phili/llama-models/Nous-Hermes-2-Mixtral-8x7B-DPO.Q2_K.gguf",
+  "quantization": "Q2_K",
+  "size_gb": 3.6,
+  "agent_role": "researcher",
+  "n_gpu_layers": 999,
+  "ctx_size": 4096,
+  "threads": 4,
+  "temperature_default": 0.7,
+  "max_tokens_default": 1024,
+  "vram_usage": "3.6GB (fully in VRAM on GTX 980 4GB)",
+  "use_cases": [
+    "Development testing",
+    "Orchestrator testing",
+    "Workflow testing",
+    "Agent integration testing"
+  ],
+  "strengths": [
+    "Fits in 4GB VRAM",
+    "Mixture of Experts architecture",
+    "Fast inference"
+  ],
+  "limitations": [
+    "Q2_K quantization = low quality",
+    "Not suitable for production research",
+    "Only for testing orchestrator logic"
+  ],
+  "note": "This is a temporary test model. Replace with Q6_K or Q4_K_M quantized models for production."
+}

@@ -1,0 +1,22 @@
+{
+  "agent_id": "test_agent",
+  "role": "researcher",
+  "name": "Test Agent",
+  "description": "Test agent using Mixtral for development testing",
+  "model_tier": "test_mixtral",
+  "temperature": 0.7,
+  "tools": [
+    "web_scraper",
+    "text_cleaner"
+  ],
+  "system_prompt": "You are a test research agent. Provide concise, factual responses. This is a development test configuration.",
+  "capabilities": [
+    "basic_research",
+    "text_processing"
+  ],
+  "use_cases": [
+    "Orchestrator testing",
+    "Workflow testing",
+    "Integration testing"
+  ]
+}

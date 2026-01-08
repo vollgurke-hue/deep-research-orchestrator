@@ -1,0 +1,73 @@
+{
+  "workflow_id": "research_generator",
+  "type": "workflow",
+  "name": "Research Generator",
+  "description": "Meta-workflow that generates customized research structures from user input",
+  "is_generic": true,
+  "category": "research_creation",
+
+  "building_blocks": [
+    {
+      "block_id": "thematic_structure_detector",
+      "block_type": "technique",
+      "order": 0,
+      "description": "Analyze research goal and identify thematic areas",
+      "inputs": {
+        "research_goal": "{user_input}",
+        "research_type": "{research_type}",
+        "available_techniques": "{generic_techniques_list}"
+      },
+      "outputs": {
+        "thematic_areas": "List of proposed thematic areas with techniques"
+      }
+    },
+    {
+      "block_id": "prompt_customizer",
+      "block_type": "technique",
+      "order": 1,
+      "description": "Generate customized prompts for each selected technique",
+      "iteration": "for_each_technique",
+      "inputs": {
+        "technique_name": "{technique.name}",
+        "generic_prompt": "{technique.prompt}",
+        "research_goal": "{user_input}",
+        "area_name": "{area.name}",
+        "area_description": "{area.description}"
+      },
+      "outputs": {
+        "customized_prompts": "Map of technique_id to customized prompt data"
+      }
+    }
+  ],
+
+  "metadata": {
+    "estimated_duration": "30-60 seconds",
+    "model_used": "tier1_fast",
+    "purpose": "research_creation"
+  },
+
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+
+  "output": {
+    "format": "json",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+
+  "exit_criteria": {
+    "type": "all_complete",
+    "threshold": null,
+    "required_outputs": ["thematic_areas", "customized_prompts"]
+  }
+}

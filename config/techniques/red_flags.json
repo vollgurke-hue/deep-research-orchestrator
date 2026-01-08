@@ -1,17 +1,52 @@
 {
   "technique_id": "red_flags",
+  "type": "technique",
   "name": "Red Flags Detection",
   "description": "Identify warning signals in responses - vague language, missing data, overconfidence, logic flaws",
+  "category": "general",
   "prompt": "<s>[INST] You are conducting RED FLAGS analysis.\n\nRED FLAGS = Warning signals that indicate high risk.\n\nInspired by: Due Diligence (M&A), Risk Assessment, Fraud Detection\n\n---\n\nORIGINAL QUESTION:\n{question}\n\nRESPONSES ANALYZED:\n{responses}\n\n---\n\nINSTRUCTIONS:\n\n1. Identify RED FLAGS in the responses:\n   - Vague language (non-specific claims)\n   - Missing data (where numbers should be)\n   - Overconfidence (no uncertainty expressed)\n   - Ignored risks (no downsides mentioned)\n   - Circular reasoning (A because B, B because A)\n   - Appeal to authority (trust us, everyone does it)\n   - Survivorship bias (only success stories cited)\n   - Recency bias (recent trend assumed permanent)\n\n2. Classify RED FLAG severity:\n   - 🚩🚩🚩 CRITICAL: Deal-breaker level concern\n   - 🚩🚩 HIGH: Serious risk, needs investigation\n   - 🚩 MODERATE: Concerning, but manageable\n\n3. For each RED FLAG:\n   - What's the warning signal?\n   - Why is it concerning?\n   - What could it indicate? (underlying problem)\n   - How to verify? (due diligence action)\n\n---\n\nCOMMON RED FLAGS:\n\n**Vague Language:**\n- \"Users will love it\" (no data)\n- \"Market is huge\" (no numbers)\n- \"Easy to implement\" (no specifics)\n\n**Missing Data:**\n- Claims without sources\n- Estimates without basis\n- Comparisons without context\n\n**Overconfidence:**\n- No uncertainty expressed\n- No risks acknowledged\n- No trade-offs discussed\n\n**Logic Flaws:**\n- Circular reasoning\n- False dichotomy (only 2 options presented)\n- Correlation = causation\n- Survivorship bias\n\n**Ignored Factors:**\n- No mention of competition\n- No mention of constraints\n- No mention of what could go wrong\n\n---\n\nOUTPUT FORMAT:\n\nRED FLAG 1: [Warning signal]\n- Severity: [🚩🚩🚩 CRITICAL / 🚩🚩 HIGH / 🚩 MODERATE]\n- Where: [which response(s), quote]\n- Why concerning: [what it indicates]\n- Underlying issue: [possible problem]\n- Due diligence: [how to verify/investigate]\n\nRED FLAG 2: ...\n\n## SUMMARY\n- Total red flags: [count by severity]\n- Critical concerns: [list]\n- Recommendation: [GO / CAUTION / NO-GO]\n\n---\n\nBe vigilant. Be specific. Cite examples.\n[/INST]</s>",
-  "placeholders": ["question", "responses"],
+  "placeholders": [
+    "question",
+    "responses"
+  ],
   "recommended_model": "tier1_fast",
   "temperature": 0.5,
   "max_tokens": 2500,
+  "agent_role": "general_analyst",
   "use_cases": [
     "Due diligence",
     "Risk assessment",
     "Quality check",
     "Investment decisions"
   ],
-  "tags": ["validation", "due-diligence", "risk", "red-flags"]
+  "tags": [
+    "validation",
+    "due-diligence",
+    "risk",
+    "red-flags"
+  ],
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+  "output": {
+    "format": "markdown",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+  "exit_criteria": {
+    "type": "completion",
+    "threshold": null,
+    "required_outputs": [
+      "content"
+    ]
+  }
 }

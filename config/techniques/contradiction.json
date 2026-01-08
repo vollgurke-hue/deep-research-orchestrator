@@ -1,17 +1,51 @@
 {
   "technique_id": "contradiction",
+  "type": "technique",
   "name": "Contradiction Detection",
   "description": "Find contradictions between different responses - where claims conflict or estimates differ wildly",
+  "category": "quality_assurance",
   "prompt": "<s>[INST] You are a critical research analyst.\n\nYour task: Find CONTRADICTIONS and INCONSISTENCIES within the following document.\n\nDOCUMENT TO ANALYZE:\n{responses}\n\n---\n\nINSTRUCTIONS:\n\n1. Identify FACTUAL contradictions and inconsistencies:\n   - Where does the document make conflicting claims?\n   - Where are estimates/numbers inconsistent?\n   - Where do recommendations or statements oppose each other?\n   - Where are assumptions contradictory?\n\n2. Classify contradiction severity:\n   - CRITICAL: Fundamentally incompatible (e.g., \"do X\" vs \"never do X\")\n   - MODERATE: Significant difference (e.g., \"10 units\" vs \"100 units\")\n   - MINOR: Nuance difference (e.g., \"probably\" vs \"maybe\")\n\n3. For each contradiction, provide:\n   - What exactly conflicts?\n   - Quote the conflicting parts directly\n   - Why does this matter for decision-making?\n   - How to resolve it? (e.g., measure, test, research more)\n\n---\n\nOUTPUT FORMAT:\n\nCONTRADICTION 1: [Title]\n- Severity: [CRITICAL / MODERATE / MINOR]\n- Part A says: \"[exact quote]\"\n- Part B says: \"[exact quote]\"\n- Why it matters: [implication for decision]\n- How to resolve: [action to take]\n\nCONTRADICTION 2: ...\n\nIf NO contradictions found, state: \"NO SIGNIFICANT CONTRADICTIONS DETECTED\"\n\n---\n\nBe precise. Quote directly. Focus on actionable contradictions.\n[/INST]</s>",
-  "placeholders": ["responses"],
+  "placeholders": [
+    "responses"
+  ],
   "recommended_model": "tier1_fast",
   "temperature": 0.5,
   "max_tokens": 2000,
+  "agent_role": "quality_validator",
   "use_cases": [
     "Multiple AI responses with conflicting claims",
     "Research from different sources",
     "Comparing expert opinions",
     "Due diligence on conflicting data"
   ],
-  "tags": ["validation", "research", "comparison", "critical-analysis"]
+  "tags": [
+    "validation",
+    "research",
+    "comparison",
+    "critical-analysis"
+  ],
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+  "output": {
+    "format": "markdown",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+  "exit_criteria": {
+    "type": "completion",
+    "threshold": null,
+    "required_outputs": [
+      "content"
+    ]
+  }
 }

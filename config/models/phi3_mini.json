@@ -1,9 +1,9 @@
 {
-  "model_id": "tier1_fast",
+  "model_id": "phi3_mini",
   "name": "Phi-3 Mini 4K Instruct",
   "description": "Microsoft Phi-3 Mini - Excellent for structured JSON outputs and instruction following",
   "path": "/home/phili/llama-models/phi-3-mini-4k-instruct-q4.gguf",
-  "quantization": "Q4",
+  "quantization": "Q4_K_M",
   "size_gb": 2.3,
   "agent_role": "researcher",
   "n_gpu_layers": 999,
@@ -11,7 +11,7 @@
   "threads": 4,
   "temperature_default": 0.3,
   "max_tokens_default": 2048,
-  "vram_usage": "2.3GB (fits on GTX 980 4GB)",
+  "vram_usage": "~2.3GB (fits on GTX 980 4GB)",
   "use_cases": [
     "JSON generation",
     "Structured analysis",

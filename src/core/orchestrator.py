@@ -61,6 +61,7 @@ class Orchestrator:
         self.agents: Dict[str, Agent] = {}
         self.workflows: Dict[str, Dict] = {}
         self.models: Dict[str, Dict] = {}
+        self.techniques: Dict[str, Dict] = {}
 
         # Initialize engines
         self.workflow_engine = WorkflowEngine(self)
@@ -70,6 +71,7 @@ class Orchestrator:
         self._load_model_configs()
         self._load_agent_configs()
         self._load_workflow_configs()
+        self._load_technique_configs()
 
         self.logger.info("Orchestrator initialized")
 
@@ -131,6 +133,18 @@ class Orchestrator:
                 config = JSONLoader.load(config_file)
                 self.workflows[config["workflow_id"]] = config
                 self.logger.debug(f"Loaded workflow: {config['workflow_id']}")
+
+    def _load_technique_configs(self):
+        """Load technique configurations."""
+        techniques_dir = self.config_dir / "techniques"
+        if not techniques_dir.exists():
+            self.logger.warning(f"Techniques config dir not found: {techniques_dir}")
+            return
+
+        for config_file in techniques_dir.glob("*.json"):
+            config = JSONLoader.load(config_file)
+            self.techniques[config["technique_id"]] = config
+            self.logger.debug(f"Loaded technique: {config['technique_id']}")
 
     def _create_llm_client(self, model_tier: str) -> LlamaCppClient:
         """
@@ -375,11 +389,156 @@ class Orchestrator:
         """
         Evaluate confidence score for workflow outputs.
 
-        TODO: Implement proper confidence calculation
+        Calculates confidence based on multiple factors:
+        - Task success rate
+        - Output quality (length, structure)
+        - Consistency across outputs
+        - Gap severity
+        - LLM-based confidence assessment
         """
-        # Simple heuristic: all tasks succeeded
-        success_rate = sum(1 for o in outputs if o.success) / len(outputs) if outputs else 0
-        return success_rate
+        if not outputs:
+            return 0.0
+
+        confidence_factors = []
+
+        # Factor 1: Success Rate (0.0-1.0)
+        success_rate = sum(1 for o in outputs if o.success) / len(outputs)
+        confidence_factors.append(("success_rate", success_rate, 0.3))  # 30% weight
+
+        # Factor 2: Output Quality (0.0-1.0)
+        quality_scores = []
+        for output in outputs:
+            if output.success:
+                # Heuristics for quality
+                length_score = min(len(output.output) / 500, 1.0)  # Longer = better (up to 500 chars)
+
+                # Check for structured output (bullets, numbers, sections)
+                has_structure = any(marker in output.output for marker in ['-', '1.', '2.', '##', '*'])
+                structure_score = 1.0 if has_structure else 0.5
+
+                quality_scores.append((length_score + structure_score) / 2)
+            else:
+                quality_scores.append(0.0)
+
+        avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.0
+        confidence_factors.append(("output_quality", avg_quality, 0.2))  # 20% weight
+
+        # Factor 3: Consistency Check (0.0-1.0)
+        # If multiple outputs, check if they're consistent in length/quality
+        if len(outputs) > 1:
+            lengths = [len(o.output) for o in outputs if o.success]
+            if lengths:
+                avg_len = sum(lengths) / len(lengths)
+                variance = sum((l - avg_len) ** 2 for l in lengths) / len(lengths)
+                # Low variance = high consistency
+                consistency_score = max(0.0, 1.0 - (variance / (avg_len ** 2)))
+            else:
+                consistency_score = 0.0
+        else:
+            consistency_score = 1.0  # Single output, no consistency check needed
+
+        confidence_factors.append(("consistency", consistency_score, 0.1))  # 10% weight
+
+        # Factor 4: Gap Severity (0.0-1.0)
+        # Fewer gaps = higher confidence
+        try:
+            gaps = self._identify_gaps(outputs, inputs)
+            gap_penalty = min(len(gaps) * 0.1, 0.4)  # Each gap reduces confidence, max 40% penalty
+            gap_score = max(0.0, 1.0 - gap_penalty)
+        except Exception:
+            gap_score = 0.7  # Moderate score if gap detection fails
+
+        confidence_factors.append(("gap_score", gap_score, 0.2))  # 20% weight
+
+        # Factor 5: LLM-based Confidence (0.0-1.0) - Optional, expensive
+        llm_confidence = None
+        if inputs.get("use_llm_confidence", False):
+            try:
+                llm_confidence = self._llm_based_confidence(outputs, inputs)
+            except Exception as e:
+                self.logger.warning(f"LLM confidence assessment failed: {e}")
+
+        if llm_confidence is not None:
+            confidence_factors.append(("llm_assessment", llm_confidence, 0.2))  # 20% weight
+            # Rebalance other weights
+            total_weight_without_llm = sum(w for _, _, w in confidence_factors[:-1])
+            confidence_factors = [
+                (name, score, weight * 0.8 / total_weight_without_llm)
+                for name, score, weight in confidence_factors[:-1]
+            ] + [("llm_assessment", llm_confidence, 0.2)]
+
+        # Calculate weighted average
+        total_confidence = sum(score * weight for _, score, weight in confidence_factors)
+
+        self.logger.debug(f"Confidence factors: {confidence_factors}")
+        self.logger.info(f"Total confidence: {total_confidence:.2f}")
+
+        return round(total_confidence, 2)
+
+    def _llm_based_confidence(
+        self,
+        outputs: List[AgentOutput],
+        inputs: Dict[str, Any]
+    ) -> float:
+        """
+        Use LLM to assess confidence in research outputs.
+
+        Optional, expensive method for high-stakes research.
+        """
+        quality_agent = None
+        for agent in self.agents.values():
+            if agent.role == "validator":
+                quality_agent = agent
+                break
+
+        if not quality_agent:
+            return 0.7  # Default moderate confidence
+
+        # Build confidence assessment task
+        outputs_summary = "\n\n".join([
+            f"Task: {o.task_id}\nOutput: {o.output[:300]}..."
+            for o in outputs if o.success
+        ])
+
+        task = Task(
+            task_id="confidence_assessment",
+            description=f"""# Confidence Assessment
+
+Original Query: {inputs.get('topic', inputs.get('query', 'N/A'))}
+
+## Research Outputs:
+{outputs_summary}
+
+## Task
+Rate your confidence in these research outputs on a scale of 0.0 to 1.0.
+
+Consider:
+- Completeness of information
+- Quality of sources/reasoning
+- Consistency across outputs
+- Remaining uncertainties
+
+Output ONLY a single number between 0.0 and 1.0, e.g.: 0.85
+""",
+            temperature=0.3,
+            max_tokens=50
+        )
+
+        result = quality_agent.execute_task(task)
+
+        if result.success:
+            # Parse confidence score
+            try:
+                # Extract first number between 0 and 1
+                import re
+                match = re.search(r'0?\.\d+|1\.0|0|1', result.output)
+                if match:
+                    score = float(match.group())
+                    return min(1.0, max(0.0, score))
+            except Exception:
+                pass
+
+        return 0.7  # Fallback
 
     def _identify_gaps(
         self,
@@ -389,16 +548,127 @@ class Orchestrator:
         """
         Identify gaps in research for next iteration.
 
-        TODO: Implement gap detection logic
+        Uses quality validator agent to analyze outputs and find:
+        - Missing information
+        - Unanswered questions
+        - Blind spots
+        - Areas needing deeper investigation
         """
         gaps = []
 
-        # Simple heuristic: failed tasks are gaps
+        # 1. Failed tasks are automatic gaps
         for output in outputs:
             if not output.success:
-                gaps.append(f"Failed task: {output.task_id}")
+                gaps.append(f"Failed task: {output.task_id} - {output.error}")
+
+        # 2. Use quality agent for LLM-based gap detection
+        try:
+            # Get quality validator agent
+            quality_agent = None
+            for agent in self.agents.values():
+                if agent.role == "validator":
+                    quality_agent = agent
+                    break
+
+            if quality_agent:
+                # Build comprehensive context from all outputs
+                context = {
+                    "original_query": inputs.get("topic", inputs.get("query", "Unknown")),
+                    "outputs": [
+                        {
+                            "task_id": o.task_id,
+                            "output": o.output[:500],  # Limit for context
+                            "success": o.success
+                        }
+                        for o in outputs
+                    ]
+                }
+
+                # Create gap detection task
+                gap_task = Task(
+                    task_id="gap_detection",
+                    description=self._build_gap_detection_prompt(context),
+                    technique="blind_spots",
+                    inputs=context,
+                    temperature=0.8,  # Higher for creative gap finding
+                    max_tokens=1024
+                )
+
+                # Execute
+                gap_output = quality_agent.execute_task(gap_task)
+
+                if gap_output.success:
+                    # Parse output for gaps (simple parsing - can be improved)
+                    gap_text = gap_output.output
+
+                    # Extract gaps from structured output
+                    # Expected format: "- Gap: [description]" or "Gap: [description]"
+                    for line in gap_text.split('\n'):
+                        line = line.strip()
+                        if line.startswith('- Gap:') or line.startswith('Gap:'):
+                            gap = line.replace('- Gap:', '').replace('Gap:', '').strip()
+                            if gap and gap not in gaps:
+                                gaps.append(gap)
+                        elif line.startswith('-') and len(line) > 10:
+                            # Generic bullet point that might be a gap
+                            gap = line.lstrip('- ').strip()
+                            if gap and not any(skip in gap.lower() for skip in ['none', 'no gaps']):
+                                gaps.append(gap)
+
+        except Exception as e:
+            self.logger.error(f"Error in LLM-based gap detection: {e}")
+            gaps.append(f"Error detecting gaps: {str(e)}")
+
+        # 3. Heuristic: Check for low-confidence outputs
+        for output in outputs:
+            if output.success and len(output.output) < 100:
+                gaps.append(f"Insufficient detail in {output.task_id}")
 
         return gaps
+
+    def _build_gap_detection_prompt(self, context: Dict[str, Any]) -> str:
+        """Build prompt for LLM-based gap detection."""
+        outputs_summary = "\n".join([
+            f"- Task: {o['task_id']}\n  Output: {o['output'][:200]}..."
+            for o in context.get("outputs", [])
+        ])
+
+        return f"""# Gap Detection Analysis
+
+Original Query: {context.get('original_query', 'N/A')}
+
+## Current Research Outputs:
+
+{outputs_summary}
+
+## Task
+
+Analyze these research outputs and identify GAPS - what's missing or needs deeper investigation?
+
+Consider:
+1. **Missing Information**: What key facts or data are absent?
+2. **Unanswered Questions**: What important questions remain?
+3. **Insufficient Depth**: What topics need more detailed analysis?
+4. **Blind Spots**: What perspectives or angles were overlooked?
+5. **Contradictions**: Any unresolved conflicting information?
+
+For each gap, provide:
+- Gap: [Clear description]
+- Why it matters: [Brief explanation]
+- Priority: high/medium/low
+
+Output format:
+```
+Gap: [Description of what's missing]
+Why it matters: [Impact]
+Priority: [high/medium/low]
+
+Gap: [Next gap]
+...
+```
+
+If no significant gaps, respond: "No major gaps identified."
+"""
 
     def _refine_inputs(
         self,
@@ -408,13 +678,106 @@ class Orchestrator:
         """
         Refine inputs based on identified gaps.
 
-        TODO: Implement input refinement logic
+        Generates focused sub-queries and context refinements to address
+        each identified gap in the next iteration.
         """
         refined = inputs.copy()
-        refined["gaps"] = gaps
-        refined["refinement_needed"] = True
+
+        if not gaps:
+            # No gaps, return original inputs
+            return refined
+
+        # Add gaps to context
+        refined["identified_gaps"] = gaps
+        refined["iteration_focus"] = "gap_filling"
+
+        # Use quality agent to generate refined queries
+        try:
+            quality_agent = None
+            for agent in self.agents.values():
+                if agent.role == "validator":
+                    quality_agent = agent
+                    break
+
+            if quality_agent:
+                # Build refinement task
+                refinement_task = Task(
+                    task_id="input_refinement",
+                    description=self._build_refinement_prompt(inputs, gaps),
+                    inputs={"original_inputs": inputs, "gaps": gaps},
+                    temperature=0.7,
+                    max_tokens=1024
+                )
+
+                refinement_output = quality_agent.execute_task(refinement_task)
+
+                if refinement_output.success:
+                    # Parse refined queries
+                    refined_text = refinement_output.output
+
+                    # Extract refined queries
+                    refined_queries = []
+                    for line in refined_text.split('\n'):
+                        line = line.strip()
+                        if line.startswith('Query:') or line.startswith('- Query:'):
+                            query = line.replace('- Query:', '').replace('Query:', '').strip()
+                            if query:
+                                refined_queries.append(query)
+
+                    if refined_queries:
+                        refined["refined_queries"] = refined_queries
+                        refined["focus_areas"] = refined_queries[:3]  # Top 3 priorities
+
+        except Exception as e:
+            self.logger.error(f"Error in input refinement: {e}")
+
+        # Heuristic refinements based on gap patterns
+        high_priority_gaps = [g for g in gaps if 'high' in g.lower() or 'critical' in g.lower()]
+        if high_priority_gaps:
+            refined["priority_gaps"] = high_priority_gaps
+
+        # Increase detail level for next iteration
+        if "detail_level" in inputs:
+            refined["detail_level"] = inputs["detail_level"] + 1
+        else:
+            refined["detail_level"] = 2
 
         return refined
+
+    def _build_refinement_prompt(self, inputs: Dict[str, Any], gaps: List[str]) -> str:
+        """Build prompt for input refinement."""
+        gaps_list = "\n".join([f"- {gap}" for gap in gaps])
+
+        return f"""# Input Refinement for Next Iteration
+
+## Original Query/Topic
+{inputs.get('topic', inputs.get('query', 'N/A'))}
+
+## Identified Gaps
+{gaps_list}
+
+## Task
+
+Based on these gaps, generate focused research queries for the next iteration.
+
+For each gap, create:
+1. A specific, actionable query
+2. Suggested research direction
+3. Priority level
+
+Output format:
+```
+Query: [Specific question to address Gap 1]
+Direction: [How to research this]
+Priority: high/medium/low
+
+Query: [Next query for Gap 2]
+...
+```
+
+Generate 3-5 refined queries that will effectively fill the identified gaps.
+Prioritize the most critical gaps first.
+"""
 
     def _generate_final_report(self, outputs: List[AgentOutput]) -> str:
         """
@@ -451,6 +814,57 @@ class Orchestrator:
         raise RuntimeError("No agents available")
 
     # Public utility methods
+
+    def get_agent(self, agent_id: str) -> Agent:
+        """
+        Get agent by ID.
+
+        Args:
+            agent_id: Agent ID to retrieve
+
+        Returns:
+            Agent instance
+
+        Raises:
+            ValueError: If agent not found
+        """
+        if agent_id not in self.agents:
+            raise ValueError(f"Agent not found: {agent_id}. Available: {list(self.agents.keys())}")
+        return self.agents[agent_id]
+
+    def get_workflow(self, workflow_id: str) -> Dict:
+        """
+        Get workflow config by ID.
+
+        Args:
+            workflow_id: Workflow ID to retrieve
+
+        Returns:
+            Workflow config dict
+
+        Raises:
+            ValueError: If workflow not found
+        """
+        if workflow_id not in self.workflows:
+            raise ValueError(f"Workflow not found: {workflow_id}. Available: {list(self.workflows.keys())}")
+        return self.workflows[workflow_id]
+
+    def get_model(self, model_id: str) -> Dict:
+        """
+        Get model config by ID.
+
+        Args:
+            model_id: Model ID to retrieve
+
+        Returns:
+            Model config dict
+
+        Raises:
+            ValueError: If model not found
+        """
+        if model_id not in self.models:
+            raise ValueError(f"Model not found: {model_id}. Available: {list(self.models.keys())}")
+        return self.models[model_id]
 
     def list_workflows(self) -> List[Dict]:
         """List all available workflows."""

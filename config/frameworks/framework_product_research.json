@@ -1,0 +1,36 @@
+{
+  "framework_id": "framework_product_research",
+  "name": "Product Research Framework",
+  "description": "Complete product research workflow from initial research to validated planning",
+  "type": "framework",
+  "building_blocks": [
+    {
+      "block_type": "phase",
+      "block_id": "phase_0_base_research",
+      "order": 1
+    },
+    {
+      "block_type": "phase",
+      "block_id": "phase_2_validation",
+      "order": 2,
+      "depends_on": "phase_0_base_research"
+    },
+    {
+      "block_type": "phase",
+      "block_id": "phase_3_synthesis",
+      "order": 3,
+      "depends_on": "phase_2_validation"
+    }
+  ],
+  "global_exit_criteria": {
+    "type": "all_phases_complete"
+  },
+  "metadata": {
+    "use_case": "Product planning and validation",
+    "estimated_total_duration": "4-6 hours",
+    "recommended_models": {
+      "research": "tier1_fast",
+      "validation": "tier2_quality"
+    }
+  }
+}

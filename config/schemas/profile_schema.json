@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "profile_schema.json",
+  "title": "Resource Profile Schema",
+  "description": "Schema for hardware resource management profiles",
+  "type": "object",
+  "required": ["profile_name", "max_graph_nodes", "max_context_tokens", "graph_storage"],
+  "properties": {
+    "profile_name": {
+      "type": "string",
+      "description": "Profile identifier",
+      "enum": ["minimal", "low", "standard", "high", "ultra"],
+      "examples": ["standard"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description",
+      "examples": ["Standard profile for 16GB RAM, 11GB VRAM"]
+    },
+    "hardware_requirements": {
+      "type": "object",
+      "properties": {
+        "min_ram_gb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum RAM required",
+          "examples": [16]
+        },
+        "min_vram_gb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum VRAM required",
+          "examples": [11]
+        }
+      }
+    },
+    "max_graph_nodes": {
+      "type": ["number", "null"],
+      "minimum": 100,
+      "description": "Maximum nodes in knowledge graph (null = unlimited)",
+      "examples": [10000, null]
+    },
+    "max_context_tokens": {
+      "type": "number",
+      "minimum": 1024,
+      "maximum": 128000,
+      "description": "Maximum tokens for LLM context window",
+      "examples": [8192, 16384]
+    },
+    "graph_storage": {
+      "type": "string",
+      "enum": ["memory", "sqlite"],
+      "description": "Where to store graph (in-memory or on-disk)",
+      "examples": ["memory"]
+    },
+    "cache_strategy": {
+      "type": "string",
+      "enum": ["minimal", "lru", "aggressive", "unlimited"],
+      "description": "Caching strategy for graph queries",
+      "examples": ["aggressive"]
+    },
+    "gui_mode": {
+      "type": "string",
+      "enum": ["text", "minimal_vue", "full_vue"],
+      "description": "GUI mode based on available resources",
+      "examples": ["full_vue"]
+    },
+    "pause_gui_for_heavy_tasks": {
+      "type": "boolean",
+      "description": "Whether to pause GUI during resource-intensive operations",
+      "default": true,
+      "examples": [true]
+    },
+    "model_preferences": {
+      "type": "object",
+      "description": "Preferred quality levels per capability",
+      "properties": {
+        "extraction": {
+          "type": "string",
+          "enum": ["fast", "balanced", "quality", "ultra"],
+          "examples": ["fast"]
+        },
+        "reasoning": {
+          "type": "string",
+          "enum": ["fast", "balanced", "quality", "ultra"],
+          "examples": ["balanced"]
+        },
+        "synthesis": {
+          "type": "string",
+          "enum": ["fast", "balanced", "quality", "ultra"],
+          "examples": ["balanced"]
+        },
+        "validation": {
+          "type": "string",
+          "enum": ["fast", "balanced", "quality", "ultra"],
+          "examples": ["balanced"]
+        }
+      },
+      "required": ["extraction", "reasoning", "synthesis", "validation"]
+    }
+  },
+  "examples": [
+    {
+      "profile_name": "standard",
+      "description": "Standard profile for 16GB RAM, 11GB VRAM",
+      "hardware_requirements": {
+        "min_ram_gb": 16,
+        "min_vram_gb": 11
+      },
+      "max_graph_nodes": 10000,
+      "max_context_tokens": 8192,
+      "graph_storage": "memory",
+      "cache_strategy": "aggressive",
+      "gui_mode": "full_vue",
+      "pause_gui_for_heavy_tasks": true,
+      "model_preferences": {
+        "extraction": "fast",
+        "reasoning": "balanced",
+        "synthesis": "balanced",
+        "validation": "balanced"
+      }
+    }
+  ]
+}

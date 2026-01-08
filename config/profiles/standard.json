@@ -1,0 +1,20 @@
+{
+  "profile_name": "standard",
+  "description": "Standard profile for 16GB RAM, 11GB VRAM (RTX 2080 Ti)",
+  "hardware_requirements": {
+    "min_ram_gb": 16,
+    "min_vram_gb": 11
+  },
+  "max_graph_nodes": 10000,
+  "max_context_tokens": 8192,
+  "graph_storage": "memory",
+  "cache_strategy": "aggressive",
+  "gui_mode": "full_vue",
+  "pause_gui_for_heavy_tasks": true,
+  "model_preferences": {
+    "extraction": "fast",
+    "reasoning": "balanced",
+    "synthesis": "balanced",
+    "validation": "balanced"
+  }
+}

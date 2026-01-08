@@ -1,0 +1,75 @@
+{
+  "technique_id": "thematic_structure_detector",
+  "type": "technique",
+  "name": "Thematic Structure Detector",
+  "description": "Analyzes research goals and identifies thematic areas for Base Research",
+  "is_generic": true,
+  "category": "research_creation",
+  "agent_role": "research_architect",
+
+  "prompt_template": {
+    "sections": {
+      "context": "You are a research structure expert helping to design comprehensive research workflows.",
+
+      "input": "Research Goal: {research_goal}\nResearch Type: {research_type}\n\nAvailable Generic Techniques:\n{available_techniques}",
+
+      "task": "Analyze the research goal and identify 3-6 thematic areas that should be covered in the BASE RESEARCH phase. For each area:\n1. Provide a concise name (2-4 words)\n2. Write a clear description of what will be researched\n3. Recommend 2-4 techniques from the available list\n4. Estimate priority (high/medium/low)\n5. Estimate duration (e.g., '15-20 min')",
+
+      "output_format": "Return ONLY valid JSON (no markdown):\n{\n  \"research_name\": \"Suggested research name\",\n  \"thematic_areas\": [\n    {\n      \"area_name\": \"string\",\n      \"description\": \"string\",\n      \"techniques\": [\"technique_id\"],\n      \"priority\": \"high|medium|low\",\n      \"estimated_duration\": \"string\"\n    }\n  ]\n}",
+
+      "quality_criteria": [
+        "Each thematic area must be distinct and non-overlapping",
+        "Techniques must be appropriate for the area",
+        "Priority reflects importance for the research goal",
+        "Total duration should be 60-120 minutes for all areas"
+      ]
+    }
+  },
+
+  "placeholders": [
+    {
+      "name": "research_goal",
+      "description": "The user's research goal description",
+      "required": true
+    },
+    {
+      "name": "research_type",
+      "description": "Type of research (product, market, scientific, etc.)",
+      "required": true
+    },
+    {
+      "name": "available_techniques",
+      "description": "List of available generic techniques",
+      "required": true
+    }
+  ],
+
+  "model": "tier1_fast",
+  "temperature": 0.3,
+  "max_tokens": 2000,
+
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+
+  "output": {
+    "format": "json",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+
+  "exit_criteria": {
+    "type": "completion",
+    "threshold": null,
+    "required_outputs": ["thematic_areas"]
+  }
+}

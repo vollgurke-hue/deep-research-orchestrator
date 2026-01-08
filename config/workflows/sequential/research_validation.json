@@ -1,8 +1,27 @@
 {
   "workflow_id": "research_validation",
+  "type": "workflow",
   "name": "Base Research Validation Workflow",
   "description": "Validate research responses from Phase 2 (Base Research). Find contradictions, blind spots, and perform premortem analysis.",
+  "category": "quality_assurance",
   "mode": "validation",
+  "building_blocks": [
+    {
+      "block_type": "technique",
+      "block_id": "contradiction",
+      "order": 1
+    },
+    {
+      "block_type": "technique",
+      "block_id": "blind_spots",
+      "order": 2
+    },
+    {
+      "block_type": "technique",
+      "block_id": "premortem",
+      "order": 3
+    }
+  ],
   "steps": [
     {
       "step": 1,
@@ -36,5 +55,36 @@
     "Research quality check",
     "Before Phase 2.5 or Phase 3"
   ],
-  "tags": ["research", "validation", "phase-2", "multi-technique"]
+  "tags": [
+    "research",
+    "validation",
+    "phase-2",
+    "multi-technique"
+  ],
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+  "output": {
+    "format": "structured",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+  "exit_criteria": {
+    "type": "all_complete",
+    "threshold": null,
+    "required_outputs": [
+      "contradiction",
+      "blind_spots",
+      "premortem"
+    ]
+  }
 }

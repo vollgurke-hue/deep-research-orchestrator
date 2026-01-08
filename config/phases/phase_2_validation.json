@@ -1,0 +1,31 @@
+{
+  "phase_id": "phase_2_validation",
+  "name": "Validation Phase",
+  "description": "Validate research findings using critical analysis techniques",
+  "type": "phase",
+  "building_blocks": [
+    {
+      "block_type": "workflow",
+      "block_id": "research_validation",
+      "category": "quality_assurance"
+    },
+    {
+      "block_type": "workflow",
+      "block_id": "validation_loop",
+      "category": "iterative_refinement"
+    }
+  ],
+  "exit_criteria": {
+    "type": "confidence_threshold",
+    "threshold": 0.8,
+    "required_outputs": [
+      "validation_report",
+      "confidence_score"
+    ]
+  },
+  "metadata": {
+    "estimated_duration": "1-2 hours",
+    "parallelizable": false,
+    "requires_models": ["quality_validator"]
+  }
+}

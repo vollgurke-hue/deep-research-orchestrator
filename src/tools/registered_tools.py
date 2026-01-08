@@ -10,7 +10,7 @@ from pathlib import Path
 from src.core.tool_decorator import tool
 from src.tools.data_collection.web_scraper import WebScraper
 from src.tools.data_collection.pdf_extractor import PDFExtractor
-from src.tools.data_collection.text_cleaner import TextCleaner
+from src.tools.processing.text_cleaner import TextCleaner
 
 
 # Initialize tool instances (lazy loaded)

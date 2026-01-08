@@ -1,17 +1,51 @@
 {
   "technique_id": "consensus",
+  "type": "technique",
   "name": "Consensus Bias Detection",
   "description": "Find consensus bias - what ALL responses agree on, which is suspicious and might indicate shared biases",
+  "category": "general",
   "prompt": "<s>[INST] You are a contrarian research analyst.\n\nYour task: Find CONSENSUS BIAS - what ALL responses agree on (which is suspicious).\n\nRESPONSES TO ANALYZE:\n{responses}\n\n---\n\nWHY CONSENSUS IS SUSPICIOUS:\n\nWhen ALL sources say the same thing, it might be:\n- Shared training data bias (LLMs trained on similar corpora)\n- Cultural bias (dominant narrative)\n- Availability bias (most visible examples)\n- Recency bias (recent trends assumed permanent)\n- Groupthink (challenging view ignored)\n\n---\n\nINSTRUCTIONS:\n\n1. Identify what ALL responses agree on:\n   - Statements present in ALL responses\n   - Assumptions ALL take for granted\n   - Options ALL ignore or dismiss\n\n2. For each consensus point, ask:\n   - WHY do all say this? (shared source? bias?)\n   - Is there a contrarian view being ignored?\n   - What evidence would DISPROVE this consensus?\n   - What if the opposite were true?\n\n3. Provide alternative hypotheses:\n   - What's a plausible counter-narrative?\n   - Which groups/perspectives disagree?\n   - What data might challenge consensus?\n\n---\n\nOUTPUT FORMAT:\n\nCONSENSUS 1: [What all agree on]\n- Evidence: [quotes from responses]\n- Why suspicious: [likely bias type]\n- Contrarian view: [alternative hypothesis]\n- How to test: [what would disprove consensus?]\n\nCONSENSUS 2: ...\n\n---\n\nBe skeptical. Challenge assumptions. Provide actionable alternatives.\n[/INST]</s>",
-  "placeholders": ["responses"],
+  "placeholders": [
+    "responses"
+  ],
   "recommended_model": "tier1_fast",
   "temperature": 0.6,
   "max_tokens": 2000,
+  "agent_role": "general_analyst",
   "use_cases": [
     "All AI responses agree on something",
     "Challenge groupthink",
     "Find overlooked perspectives",
     "Test dominant narratives"
   ],
-  "tags": ["validation", "contrarian", "bias-detection", "critical-thinking"]
+  "tags": [
+    "validation",
+    "contrarian",
+    "bias-detection",
+    "critical-thinking"
+  ],
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+  "output": {
+    "format": "markdown",
+    "content": "",
+    "metadata": {
+      "confidence_score": 0.0,
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+  "exit_criteria": {
+    "type": "completion",
+    "threshold": null,
+    "required_outputs": [
+      "content"
+    ]
+  }
 }

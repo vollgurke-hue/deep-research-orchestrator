@@ -1,0 +1,77 @@
+{
+  "technique_id": "critical_theme_analyzer",
+  "type": "technique",
+  "name": "Critical Theme Analyzer",
+  "description": "Critically analyzes research goals and creates logical thematic breakdown optimized for deep research with external flagship models",
+  "is_generic": true,
+  "category": "research_creation",
+  "agent_role": "critical_research_analyst",
+
+  "prompt_template": {
+    "sections": {
+      "context": "You are an expert analyst in the field of {research_type}. Your task is to critically analyze a research objective and create a logical thematic breakdown for deep research.\n\nIMPORTANT CONTEXT:\n- Each theme you identify will become a SEPARATE deep research prompt\n- These prompts will be sent to external flagship AI models (high-quality, external models)\n- The user will manually review and decide which themes to pursue (human-in-the-loop)\n- Your goal: Create a CRITICAL, GOAL-ORIENTED thematic structure",
+
+      "input": "## USER'S RESEARCH DESCRIPTION\n{user_input}\n\n## USER'S EXPLICIT GOAL/OBJECTIVE\n{research_goal}\n\n## RESEARCH TYPE\n{research_type}",
+
+      "task": "## YOUR TASK\n\nAdopt the perspective of a critical analyst in this field. Analyze the user's goal and create a logical thematic breakdown.\n\n### CRITICAL ANALYSIS REQUIREMENTS:\n\n1. **Goal-Oriented Focus**\n   - Every theme MUST directly support the stated goal\n   - Think: \"What does the user ACTUALLY need to achieve their objective?\"\n   - Eliminate nice-to-have topics that don't serve the goal\n\n2. **Logical Structure**\n   - Break down the research domain logically (not randomly)\n   - Group related aspects together\n   - Create a hierarchy that makes analytical sense\n   - No artificial depth restrictions - go as deep as needed\n\n3. **Research Quality Balance**\n   - Each theme should be substantial enough for deep research\n   - Not too broad (unfocused research)\n   - Not too narrow (trivial findings)\n   - Consider: Each theme = one research prompt to external models\n\n4. **Critical Thinking**\n   - Challenge assumptions in the user's description\n   - Identify gaps they might have missed\n   - Prioritize what's CRITICAL vs. supplementary\n   - Think like a domain expert, not a checklist\n\n5. **Hierarchical Depth**\n   - Use sub-themes when logical decomposition makes sense\n   - No artificial depth limits\n   - Each level should add analytical value\n   - Relevance scores help user prioritize (0-100)\n\n### EXAMPLE THINKING PROCESS:\n\nUser Goal: \"Validate a SaaS product for AI tutoring in schools\"\n\n❌ BAD: Generic themes like \"Technology\", \"Market\", \"Users\"\n✅ GOOD: \"Competitive Landscape Analysis\", \"B2B School Procurement Process\", \"Regulatory Compliance (GDPR, Data Protection)\"\n\n❌ BAD: 20 micro-themes (too granular, expensive)\n✅ GOOD: 8-12 well-scoped themes with targeted sub-themes\n\n❌ BAD: Themes that don't serve the validation goal\n✅ GOOD: Themes that directly inform go/no-go decision",
+
+      "output_format": "Return ONLY valid JSON (no markdown, no explanation):\n\n{\n  \"thematic_hierarchy\": [\n    {\n      \"theme_id\": \"unique_id\",\n      \"theme_name\": \"Descriptive name (2-6 words)\",\n      \"description\": \"What will be researched and why it matters for the goal\",\n      \"relevance_score\": 85,  // 0-100: How critical is this for the stated goal?\n      \"sub_themes\": [\n        {\n          \"theme_id\": \"sub_id\",\n          \"theme_name\": \"Sub-theme name\",\n          \"description\": \"Specific aspect to research\",\n          \"relevance_score\": 75,\n          \"sub_themes\": []  // Can nest further if logically needed\n        }\n      ]\n    }\n  ],\n  \"metadata\": {\n    \"total_themes\": 10,  // Count all themes and sub-themes\n    \"analysis_notes\": \"Brief explanation of your analytical approach\"\n  }\n}",
+
+      "quality_criteria": [
+        "Every theme directly supports the user's explicit goal",
+        "Thematic structure is logically organized (not arbitrary)",
+        "Relevance scores reflect true criticality for goal achievement",
+        "No artificial depth restrictions - structure follows logical decomposition",
+        "Themes are scoped for meaningful deep research (not too broad/narrow)",
+        "Missing obvious critical areas results in FAILURE",
+        "Including irrelevant topics results in FAILURE"
+      ]
+    }
+  },
+
+  "placeholders": [
+    {
+      "name": "user_input",
+      "description": "User's research description",
+      "required": true
+    },
+    {
+      "name": "research_goal",
+      "description": "User's explicit goal/objective",
+      "required": true
+    },
+    {
+      "name": "research_type",
+      "description": "Type of research (product, market, scientific, etc.)",
+      "required": true
+    }
+  ],
+
+  "model": "tier1_fast",
+  "temperature": 0.4,
+  "max_tokens": 3000,
+
+  "working_state": {
+    "status": "pending",
+    "progress": 0,
+    "current_step": "",
+    "started_at": null,
+    "updated_at": null
+  },
+
+  "output": {
+    "format": "json",
+    "content": "",
+    "metadata": {
+      "model_used": "",
+      "token_count": 0,
+      "execution_time_ms": 0
+    }
+  },
+
+  "exit_criteria": {
+    "type": "completion",
+    "threshold": null,
+    "required_outputs": ["thematic_hierarchy"]
+  }
+}
