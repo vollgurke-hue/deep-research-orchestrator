@@ -70,16 +70,26 @@ class GraphManager:
             **metadata: Additional attributes
 
         Returns:
-            True if added, False if max_nodes reached
-        """
-        # TODO Sprint 1 Day 4: Implement node addition
-        # Check max_nodes limit
-        # Add with timestamp
-        # Validate required fields
+            True if added, False if max_nodes reached or node exists
 
-        if len(self.graph.nodes) >= self.max_nodes:
+        Raises:
+            ValueError: If confidence not in range [0, 1]
+        """
+        # Validate confidence
+        if not 0.0 <= confidence <= 1.0:
+            raise ValueError(f"Confidence must be between 0 and 1, got {confidence}")
+
+        # Check if node already exists
+        if node_id in self.graph.nodes:
+            print(f"Warning: Node {node_id} already exists, skipping")
             return False
 
+        # Check max_nodes limit
+        if len(self.graph.nodes) >= self.max_nodes:
+            print(f"Warning: Max nodes ({self.max_nodes}) reached")
+            return False
+
+        # Add node with timestamp
         self.graph.add_node(
             node_id,
             type=node_type,
@@ -91,6 +101,59 @@ class GraphManager:
         )
         return True
 
+    def get_node(self, node_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get node data by ID.
+
+        Args:
+            node_id: Node identifier
+
+        Returns:
+            Dict of node attributes or None if not found
+        """
+        if node_id not in self.graph.nodes:
+            return None
+
+        return dict(self.graph.nodes[node_id])
+
+    def update_node(self, node_id: str, **updates) -> bool:
+        """
+        Update node attributes.
+
+        Args:
+            node_id: Node to update
+            **updates: Attributes to update
+
+        Returns:
+            True if updated, False if node not found
+        """
+        if node_id not in self.graph.nodes:
+            return False
+
+        # Update timestamp
+        updates["updated_at"] = datetime.utcnow().isoformat()
+
+        for key, value in updates.items():
+            self.graph.nodes[node_id][key] = value
+
+        return True
+
+    def delete_node(self, node_id: str) -> bool:
+        """
+        Delete node and all connected edges.
+
+        Args:
+            node_id: Node to delete
+
+        Returns:
+            True if deleted, False if node not found
+        """
+        if node_id not in self.graph.nodes:
+            return False
+
+        self.graph.remove_node(node_id)
+        return True
+
     def add_edge(
         self,
         source_id: str,
@@ -98,7 +161,7 @@ class GraphManager:
         edge_type: str,
         weight: float = 0.5,
         **metadata
-    ):
+    ) -> bool:
         """
         Add edge between two nodes.
 
@@ -108,17 +171,52 @@ class GraphManager:
             edge_type: supports, contradicts, relates_to
             weight: Edge strength (0.0-1.0)
             **metadata: Additional edge attributes
+
+        Returns:
+            True if added, False if nodes don't exist
+
+        Raises:
+            ValueError: If weight not in range [0, 1]
         """
-        # TODO Sprint 1 Day 4: Implement edge addition
+        # Validate weight
+        if not 0.0 <= weight <= 1.0:
+            raise ValueError(f"Weight must be between 0 and 1, got {weight}")
+
         # Validate nodes exist
-        # Add edge with type and weight
+        if source_id not in self.graph.nodes:
+            print(f"Warning: Source node {source_id} does not exist")
+            return False
+
+        if target_id not in self.graph.nodes:
+            print(f"Warning: Target node {target_id} does not exist")
+            return False
+
+        # Add edge with timestamp
         self.graph.add_edge(
             source_id,
             target_id,
             type=edge_type,
             weight=weight,
+            created_at=datetime.utcnow().isoformat(),
             **metadata
         )
+        return True
+
+    def get_edge(self, source_id: str, target_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get edge data.
+
+        Args:
+            source_id: Source node ID
+            target_id: Target node ID
+
+        Returns:
+            Dict of edge attributes or None if not found
+        """
+        if not self.graph.has_edge(source_id, target_id):
+            return None
+
+        return dict(self.graph.edges[source_id, target_id])
 
     def find_contradictions(self) -> List[tuple[str, str]]:
         """
@@ -167,30 +265,145 @@ class GraphManager:
         Returns:
             List of node IDs sorted by importance
         """
-        # TODO Sprint 1 Day 5: Implement ranking
-        # pagerank: nx.pagerank()
-        # degree: graph.degree()
-        # betweenness: nx.betweenness_centrality()
+        if len(self.graph.nodes) == 0:
+            return []
 
         if algorithm == "pagerank":
+            if len(self.graph.edges) == 0:
+                # PageRank needs edges, fallback to all nodes
+                return list(self.graph.nodes)[:n]
             ranks = nx.pagerank(self.graph)
             return sorted(ranks, key=ranks.get, reverse=True)[:n]
-        return []
 
-    def to_markdown(self, node_ids: Optional[List[str]] = None) -> str:
+        elif algorithm == "degree":
+            # Sort by total degree (in + out)
+            degrees = dict(self.graph.degree())
+            return sorted(degrees, key=degrees.get, reverse=True)[:n]
+
+        elif algorithm == "betweenness":
+            if len(self.graph.edges) == 0:
+                return list(self.graph.nodes)[:n]
+            centrality = nx.betweenness_centrality(self.graph)
+            return sorted(centrality, key=centrality.get, reverse=True)[:n]
+
+        else:
+            raise ValueError(f"Unknown algorithm: {algorithm}. Use 'pagerank', 'degree', or 'betweenness'")
+
+    def to_markdown(self, node_ids: Optional[List[str]] = None, max_nodes: int = 50) -> str:
         """
         Serialize (sub)graph to markdown for LLM prompts.
 
         Args:
-            node_ids: Specific nodes to include (None = all)
+            node_ids: Specific nodes to include (None = all, limited by max_nodes)
+            max_nodes: Maximum nodes to include (prevents token overflow)
 
         Returns:
             Markdown string representation
+
+        Format:
+        # Knowledge Graph
+
+        ## Facts (confidence ≥ 0.7)
+        - **fact_1** (0.85): Market growing at 15% CAGR
+          - Source: Gartner Report 2024
+          - Supports: fact_2, fact_3
+
+        ## Opinions (confidence < 0.7)
+        - **opinion_1** (0.60): AI will dominate
+          - Source: Expert interview
+
+        ## Contradictions
+        - fact_1 ←→ fact_5 (Market shrinking)
         """
-        # TODO Sprint 1 Day 6: Implement markdown serialization
-        # Format as bullet list with confidence scores
-        # Include edges (X supports Y, A contradicts B)
-        return "# Knowledge Graph\n\n(TODO: Implement serialization)"
+        # Select nodes to include
+        if node_ids is None:
+            # Use top nodes by PageRank
+            node_ids = self.get_top_nodes(n=max_nodes, algorithm="pagerank")
+        else:
+            node_ids = node_ids[:max_nodes]  # Limit to max
+
+        if not node_ids:
+            return "# Knowledge Graph\n\n(Empty)"
+
+        # Build markdown
+        lines = ["# Knowledge Graph\n"]
+
+        # Group nodes by type and confidence
+        facts_high = []  # confidence >= 0.7
+        facts_low = []   # confidence < 0.7
+        opinions = []
+        questions = []
+        hypotheses = []
+
+        for node_id in node_ids:
+            node_data = self.graph.nodes.get(node_id, {})
+            node_type = node_data.get("type", "unknown")
+            confidence = node_data.get("confidence", 0.0)
+            content = node_data.get("content", "")
+            source = node_data.get("source", "Unknown")
+
+            # Format node line
+            node_line = f"- **{node_id}** ({confidence:.2f}): {content}"
+            if source:
+                node_line += f"\n  - Source: {source}"
+
+            # Add edges (outgoing relationships)
+            out_edges = list(self.graph.out_edges(node_id, data=True))
+            if out_edges:
+                supports = [t for s, t, d in out_edges if d.get("type") == "supports"]
+                contradicts = [t for s, t, d in out_edges if d.get("type") == "contradicts"]
+
+                if supports:
+                    node_line += f"\n  - Supports: {', '.join(supports)}"
+                if contradicts:
+                    node_line += f"\n  - Contradicts: {', '.join(contradicts)}"
+
+            # Categorize
+            if node_type == "fact":
+                if confidence >= 0.7:
+                    facts_high.append(node_line)
+                else:
+                    facts_low.append(node_line)
+            elif node_type == "opinion":
+                opinions.append(node_line)
+            elif node_type == "question":
+                questions.append(node_line)
+            elif node_type == "hypothesis":
+                hypotheses.append(node_line)
+
+        # Add sections
+        if facts_high:
+            lines.append("\n## Facts (High Confidence ≥ 0.7)\n")
+            lines.extend(facts_high)
+
+        if facts_low:
+            lines.append("\n## Facts (Low Confidence < 0.7)\n")
+            lines.extend(facts_low)
+
+        if opinions:
+            lines.append("\n## Opinions\n")
+            lines.extend(opinions)
+
+        if hypotheses:
+            lines.append("\n## Hypotheses\n")
+            lines.extend(hypotheses)
+
+        if questions:
+            lines.append("\n## Questions\n")
+            lines.extend(questions)
+
+        # Add contradiction summary
+        contradictions = self.find_contradictions()
+        if contradictions:
+            lines.append("\n## ⚠️ Contradictions Detected\n")
+            for node1, node2 in contradictions:
+                content1 = self.graph.nodes[node1].get("content", node1)
+                content2 = self.graph.nodes[node2].get("content", node2)
+                lines.append(f"- **{node1}** ←→ **{node2}**")
+                lines.append(f"  - {content1}")
+                lines.append(f"  - {content2}")
+
+        return "\n".join(lines)
 
     def save(self, path: str):
         """Save graph to disk (GraphML format)"""
