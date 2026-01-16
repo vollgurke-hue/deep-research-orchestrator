@@ -93,6 +93,15 @@ class AxiomManager:
         """
         return self.axioms.get(axiom_id)
 
+    def get_all_axioms(self) -> List[Dict]:
+        """
+        Get all loaded axioms.
+
+        Returns:
+            List of all axiom dicts
+        """
+        return list(self.axioms.values())
+
     def get_axioms_by_category(self, category: str) -> List[Dict]:
         """
         Get all axioms in a category.

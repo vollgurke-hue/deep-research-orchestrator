@@ -67,3 +67,17 @@ htmlcov/
 # Temporary files
 *.tmp
 *.bak
+
+# Data directories (user data, backups)
+data/
+data_backup*/
+
+# Databases (SQLite - contains user research data)
+*.db
+
+# Node modules (GUI dependencies - large)
+node_modules/
+gui/node_modules/
+
+# Archive (old docs/files)
+archive/

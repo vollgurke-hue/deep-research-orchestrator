@@ -1,0 +1,10 @@
+{
+  "model_id": "deepseek-r1-qwen-14b-abliterated",
+  "backend": "llamacpp",
+  "gguf_path": "/home/phili/llama-models/DeepSeek-R1-Qwen-14B-abliterated-Q4_K_M.gguf",
+  "capabilities": ["reasoning", "synthesis", "validation"],
+  "quality_level": "balanced",
+  "vram_mb": 8500,
+  "ctx_size": 8192,
+  "n_gpu_layers": 999
+}

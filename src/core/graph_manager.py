@@ -8,7 +8,11 @@ Handles node/edge operations, conflict detection, and serialization.
 import networkx as nx
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from pathlib import Path
+
 from .axiom_manager import AxiomManager
+from .spo_database import SPODatabase
+from src.models.unified_session import SPOTriplet
 
 
 class GraphManager:
@@ -40,20 +44,32 @@ class GraphManager:
     }
     """
 
-    def __init__(self, max_nodes: int = 10000, axioms_dir: Optional[str] = None):
+    def __init__(
+        self,
+        max_nodes: int = 10000,
+        axioms_dir: Optional[str] = None,
+        spo_db_path: Optional[str] = None
+    ):
         """
         Initialize graph manager.
 
         Args:
             max_nodes: Maximum nodes allowed (from profile)
             axioms_dir: Directory for axioms (None = no axiom filtering)
+            spo_db_path: Path to SPO database (Cluster 1 addition)
         """
+        # Legacy NetworkX graph (KEEP for backward compatibility)
         self.graph = nx.DiGraph()
         self.max_nodes = max_nodes
         self.axiom_manager = None
 
         if axioms_dir:
             self.axiom_manager = AxiomManager(axioms_dir)
+
+        # NEW: SPO Database (Cluster 1 - SRO Implementation)
+        self.spo_db = None
+        if spo_db_path:
+            self.spo_db = SPODatabase(spo_db_path)
 
     def add_node(
         self,
@@ -537,6 +553,196 @@ class GraphManager:
 
         # Create subgraph
         return self.graph.subgraph(relevant_nodes).copy()
+
+    # ========================================================================
+    # SPO Knowledge Graph Methods (Cluster 1 - SRO Implementation)
+    # ========================================================================
+
+    def add_spo_triplet(self, triplet: SPOTriplet) -> str:
+        """
+        Add SPO triplet to knowledge graph.
+
+        This is the NEW way of storing structured knowledge (parallel to legacy).
+
+        Args:
+            triplet: SPOTriplet instance
+
+        Returns:
+            Triplet ID
+
+        Raises:
+            RuntimeError: If SPO database not initialized
+        """
+        if not self.spo_db:
+            raise RuntimeError("SPO database not initialized. Pass spo_db_path to __init__")
+
+        return self.spo_db.insert(triplet)
+
+    def get_spo_triplets(
+        self,
+        subject: Optional[str] = None,
+        predicate: Optional[str] = None,
+        object: Optional[str] = None,
+        tier: Optional[str] = None,
+        min_confidence: float = 0.0,
+        limit: int = 100
+    ) -> List[SPOTriplet]:
+        """
+        Query SPO triplets with filters.
+
+        Args:
+            subject: Filter by subject (exact match)
+            predicate: Filter by predicate (exact match)
+            object: Filter by object (exact match)
+            tier: Filter by tier (bronze|silver|gold)
+            min_confidence: Minimum confidence threshold
+            limit: Maximum results
+
+        Returns:
+            List of SPOTriplet instances
+        """
+        if not self.spo_db:
+            return []
+
+        return self.spo_db.query(
+            subject=subject,
+            predicate=predicate,
+            object=object,
+            tier=tier,
+            min_confidence=min_confidence,
+            limit=limit
+        )
+
+    def search_spo(self, query_text: str, limit: int = 50) -> List[SPOTriplet]:
+        """
+        Full-text search in SPO triplets.
+
+        Args:
+            query_text: Search query
+            limit: Maximum results
+
+        Returns:
+            List of SPOTriplet instances ranked by relevance
+        """
+        if not self.spo_db:
+            return []
+
+        return self.spo_db.search(query_text, limit=limit)
+
+    def promote_triplet(self, triplet_id: str, new_tier: str) -> bool:
+        """
+        Promote triplet to higher tier (Bronze → Silver → Gold).
+
+        Part of Tiered RAG workflow (Cluster 2).
+
+        Args:
+            triplet_id: Triplet to promote
+            new_tier: New tier (silver | gold)
+
+        Returns:
+            True if promoted, False if not found
+        """
+        if not self.spo_db:
+            return False
+
+        return self.spo_db.promote(triplet_id, new_tier)
+
+    def verify_triplet(
+        self,
+        triplet_id: str,
+        verification_source: str
+    ) -> bool:
+        """
+        Mark triplet as verified by a source.
+
+        Used for multi-source verification (Cluster 2).
+
+        Args:
+            triplet_id: Triplet to verify
+            verification_source: Source that verified this
+
+        Returns:
+            True if updated, False if not found
+        """
+        if not self.spo_db:
+            return False
+
+        return self.spo_db.update_provenance(
+            triplet_id,
+            verified=True,
+            verification_source=verification_source
+        )
+
+    def get_spo_stats(self) -> Dict[str, Any]:
+        """
+        Get SPO database statistics.
+
+        Returns:
+            Stats dict with triplet counts, tiers, etc.
+        """
+        if not self.spo_db:
+            return {"error": "SPO database not initialized"}
+
+        return self.spo_db.get_stats()
+
+    def migrate_legacy_to_spo(self, limit: int = 100) -> int:
+        """
+        Migrate legacy NetworkX nodes to SPO triplets.
+
+        This is a helper for gradual migration (Cluster 2 task).
+
+        Args:
+            limit: Maximum nodes to migrate
+
+        Returns:
+            Number of triplets created
+        """
+        if not self.spo_db:
+            return 0
+
+        migrated = 0
+
+        # Get fact nodes from legacy graph
+        fact_nodes = [
+            (nid, data) for nid, data in self.graph.nodes(data=True)
+            if data.get("type") == "fact"
+        ][:limit]
+
+        for node_id, node_data in fact_nodes:
+            # Simple heuristic: content as subject-predicate-object
+            # In production, use SPOExtractor here
+            content = node_data.get("content", "")
+
+            # Create simple triplet (placeholder logic)
+            # TODO Cluster 2: Use SPOExtractor for proper parsing
+            from src.models.unified_session import SPOProvenance
+
+            triplet = SPOTriplet(
+                id=f"migrated_{node_id}",
+                subject="Legacy_Node",
+                predicate="has_content",
+                object=content[:100],  # Truncate
+                confidence=node_data.get("confidence", 0.5),
+                tier="bronze",
+                provenance=SPOProvenance(
+                    source_id=node_id,
+                    extraction_method="legacy_migration",
+                    model_used=None,
+                    extracted_at=datetime.utcnow().isoformat()
+                ),
+                metadata={
+                    "legacy_node_id": node_id,
+                    "legacy_type": node_data.get("type")
+                }
+            )
+
+            try:
+                self.spo_db.insert(triplet)
+                migrated += 1
+            except Exception as e:
+                print(f"Failed to migrate {node_id}: {e}")
+
+        return migrated
 
 
 # TODO Sprint 2: Add MCTS for path exploration

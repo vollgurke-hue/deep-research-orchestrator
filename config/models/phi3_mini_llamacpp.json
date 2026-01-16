@@ -1,0 +1,10 @@
+{
+  "model_id": "phi3-mini-4k",
+  "backend": "llamacpp",
+  "gguf_path": "/home/phili/llama-models/phi-3-mini-4k-instruct-q4.gguf",
+  "capabilities": ["extraction", "reasoning", "synthesis"],
+  "quality_level": "fast",
+  "vram_mb": 2300,
+  "ctx_size": 4096,
+  "n_gpu_layers": 999
+}
